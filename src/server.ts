@@ -1,19 +1,35 @@
 import errorHandler from "errorhandler";
-
+import {connectDatabase} from "./database/db";
 import app from "./app";
+
+const PORT = app.get("port");
 
 /**
  * Error Handler. Provides full stack - remove for production
  */
 app.use(errorHandler());
 
-/**
- * Start Express server.
- */
-app.listen(app.get("port"), () => {
-    console.log("App is running at http://localhost:%d in %s mode",
-        app.get("port"),
-        app.get("env")
-    );
-    console.log("Press CTRL-C to stop\n");
-});
+function runServer(port: number) {
+    return new Promise((resolve, reject) => {
+        app.listen(port, (err: any) => {
+            if (err) {
+                reject(err);
+            }
+            resolve();
+        });
+    });
+}
+
+async function startApplication() {
+    try {
+        await connectDatabase();
+        console.log("Database is connected successfully");
+        await runServer(PORT);
+        console.log(`Server is running on ${PORT}`);
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+startApplication();
