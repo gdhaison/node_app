@@ -1,4 +1,6 @@
-import {Response, Request, NextFunction} from "express";
+import {Request, Response} from "express";
+import { Container } from "typedi";
+import { UserService } from "../services/UserService";
 
 export const index = (req: Request, res: Response) => {
     res.status(200).json({title: "Home"});
@@ -8,6 +10,8 @@ export const index = (req: Request, res: Response) => {
  * List of API examples.
  * @route GET /api
  */
-export const getApi = (req: Request, res: Response) => {
-    res.status(200).json({title: "API Examples"});
+export const getApi = async (req: Request, res: Response) => {
+    const userService = Container.get(UserService);
+    const user = await userService.getById(1);
+    res.status(200).json(user);
 };

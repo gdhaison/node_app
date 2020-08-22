@@ -1,55 +1,38 @@
 import express, {NextFunction, Request, Response} from "express";
-import compression from "compression";  //compresses requests
+import compression from "compression"; //compresses requests
 import bodyParser from "body-parser";
 import lusca from "lusca";
 import flash from "express-flash";
 
-// Controllers (route handlers)
 import * as userController from "./controllers/user";
 import * as apiController from "./controllers/api";
-import _ from "lodash";
 
 // Create Express server
 const app = express();
-
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 app.use(compression());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(flash());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
-
-// app.use((req, res, next) => {
-//     res.locals.user = req.user;
-//     next();
-// });
-
 
 /**
  * Login Required middleware.
  */
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-
-    res.redirect("/login");
+    console.log("isAuthenticated");
+    next();
 };
 
 /**
  * Authorization Required middleware.
  */
 export const isAuthorized = (req: Request, res: Response, next: NextFunction) => {
-    const provider = req.path.split("/").slice(-1)[0];
-
-    // const user = req.user as UserDocument;
-    // if (_.find(user.tokens, { kind: provider })) {
-    //     next();
-    // } else {
-    //     res.redirect(`/auth/${provider}`);
-    // }
+    console.log("isAuthorized");
+    next();
 };
-
 
 /**
  * Primary app routes.
@@ -61,6 +44,7 @@ app.post("/forgot", userController.postForgot);
 app.get("/signup", userController.getSignup);
 app.post("/signup", userController.postSignup);
 app.get("/account", isAuthenticated, userController.getAccount);
+app.get("/account/profile", isAuthenticated, userController.userInfo);
 app.post("/account/profile", isAuthenticated, userController.postUpdateProfile);
 app.post("/account/password", isAuthenticated, userController.postUpdatePassword);
 app.post("/account/delete", isAuthenticated, userController.postDeleteAccount);

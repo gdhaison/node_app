@@ -1,5 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { check, sanitize, validationResult } from "express-validator";
+import {NextFunction, Request, Response} from "express";
+import {check, sanitize, validationResult} from "express-validator";
+import {Container} from "typedi";
+import {UserService} from "../services/UserService";
 
 /**
  * Sign in using email and password.
@@ -9,7 +11,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
     await check("email", "Email is not valid").isEmail().run(req);
     await check("password", "Password cannot be blank").isLength({min: 1}).run(req);
     // eslint-disable-next-line @typescript-eslint/camelcase
-    await sanitize("email").normalizeEmail({ gmail_remove_dots: false }).run(req);
+    await sanitize("email").normalizeEmail({gmail_remove_dots: false}).run(req);
 
     const errors = validationResult(req);
 
@@ -43,16 +45,16 @@ export const getSignup = (req: Request, res: Response) => {
  */
 export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     await check("email", "Email is not valid").isEmail().run(req);
-    await check("password", "Password must be at least 4 characters long").isLength({ min: 4 }).run(req);
+    await check("password", "Password must be at least 4 characters long").isLength({min: 4}).run(req);
     await check("confirmPassword", "Passwords do not match").equals(req.body.password).run(req);
     // eslint-disable-next-line @typescript-eslint/camelcase
-    await sanitize("email").normalizeEmail({ gmail_remove_dots: false }).run(req);
+    await sanitize("email").normalizeEmail({gmail_remove_dots: false}).run(req);
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        req.flash("errors", errors.array());
-        return res.redirect("/signup");
+        //req.flash("errors", errors.array());
+        // TODO handler errors
     }
 };
 
@@ -73,12 +75,13 @@ export const getAccount = (req: Request, res: Response) => {
 export const postUpdateProfile = async (req: Request, res: Response, next: NextFunction) => {
     await check("email", "Please enter a valid email address.").isEmail().run(req);
     // eslint-disable-next-line @typescript-eslint/camelcase
-    await sanitize("email").normalizeEmail({ gmail_remove_dots: false }).run(req);
+    await sanitize("email").normalizeEmail({gmail_remove_dots: false}).run(req);
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        req.flash("errors", errors.array());
+        //req.flash("errors", errors.array());
+        // TODO handler errors
         res.status(500).json(errors.array());
     }
 };
@@ -88,13 +91,14 @@ export const postUpdateProfile = async (req: Request, res: Response, next: NextF
  * @route POST /account/password
  */
 export const postUpdatePassword = async (req: Request, res: Response, next: NextFunction) => {
-    await check("password", "Password must be at least 4 characters long").isLength({ min: 4 }).run(req);
+    await check("password", "Password must be at least 4 characters long").isLength({min: 4}).run(req);
     await check("confirmPassword", "Passwords do not match").equals(req.body.password).run(req);
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        req.flash("errors", errors.array());
+        //req.flash("errors", errors.array());
+        // TODO handler errors
         return res.redirect("/account");
     }
 };
@@ -104,7 +108,7 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
  * @route POST /account/delete
  */
 export const postDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
-
+    console.log("sdsdsd");
 };
 
 /**
@@ -114,12 +118,13 @@ export const postDeleteAccount = (req: Request, res: Response, next: NextFunctio
 export const postForgot = async (req: Request, res: Response, next: NextFunction) => {
     await check("email", "Please enter a valid email address.").isEmail().run(req);
     // eslint-disable-next-line @typescript-eslint/camelcase
-    await sanitize("email").normalizeEmail({ gmail_remove_dots: false }).run(req);
+    await sanitize("email").normalizeEmail({gmail_remove_dots: false}).run(req);
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        req.flash("errors", errors.array());
+        // TODO handler errors
+        // req.flash("errors", errors.array());
         return res.status(500).json({
             msg: "Error when change pass"
         });
@@ -127,5 +132,15 @@ export const postForgot = async (req: Request, res: Response, next: NextFunction
 
     return res.status(20).json({
         msg: "Change pass success"
+    });
+};
+
+export const userInfo = async (req: Request, res: Response, next: NextFunction) => {
+    const userService = Container.get(UserService);
+    const user = await userService.getById(1);
+    if (user)
+        return res.status(200).json(user);
+    return res.status(200).json({
+        msg: "No data found!"
     });
 };
