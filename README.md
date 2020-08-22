@@ -10,5 +10,6 @@ git clone git@gitlab.com:hoangdinhtrongdt1/lose-weight-api.git <project_name>
 cd <project_name>
 npm install
 npm run build
-nodemon --inspect dist/server.js
+npm start 
+or (nodemon --inspect dist/server.js)
 ```
