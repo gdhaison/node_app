@@ -2,13 +2,13 @@ import "reflect-metadata";
 import "./utils/env";
 import {connectDatabase} from "./database/db";
 import {createExpressServer, useContainer} from "routing-controllers";
-import {PostController, UserController} from "./api/controllers";
+import {PostController, UserController, AuthController} from "./api/controllers";
 import { Container } from "typedi";
 
 useContainer(Container);
 
 const app = createExpressServer({
-    controllers: [UserController, PostController]
+    controllers: [UserController, PostController, AuthController]
 });
 
 const PORT = 3001;

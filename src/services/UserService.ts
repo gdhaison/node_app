@@ -10,7 +10,7 @@ export class UserService extends BaseService<User> {
         super(User);
     }
 
-    async getById(id: number): Promise<User | undefined> {
+    public async getById(id: number): Promise<User | undefined> {
         const relations: string[] = [];
         console.log("userId ===>:" + id);
         return super.getById(id, relations);
@@ -18,6 +18,11 @@ export class UserService extends BaseService<User> {
 
     public findById(id: number): Promise<User | undefined> {
         return this.userRepository.findOne({id});
+    }
+
+    public async create(user: User): Promise<User> {
+        const newUser = await this.userRepository.save(user);
+        return newUser;
     }
 
 }
