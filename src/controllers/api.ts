@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import { Container } from "typedi";
-import { UserService } from "../services/UserService";
+import {Container} from "typedi";
+import {UserService} from "../services/UserService";
 
 export const index = (req: Request, res: Response) => {
     res.status(200).json({title: "Home"});
@@ -12,6 +12,6 @@ export const index = (req: Request, res: Response) => {
  */
 export const getApi = async (req: Request, res: Response) => {
     const userService = Container.get(UserService);
-    const user = await userService.getById(1);
+    const user = await userService.findById(1);
     res.status(200).json(user);
 };
