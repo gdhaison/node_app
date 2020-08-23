@@ -1,27 +1,23 @@
 import {Service} from "typedi";
 import {User} from "../models/Users";
 import {BaseService} from "./BaseService";
-
-export interface IuserDTO {
-    nickname: string;
-    name: string;
-    birthday: Date;
-    profile: string;
-    phone: string;
-    email: string;
-    deletedAt?: Date;
-}
+import {OrmRepository} from "typeorm-typedi-extensions";
+import {UserRepository} from "../repositories/UserRepository";
 
 @Service()
 export class UserService extends BaseService<User> {
-    constructor() {
+    constructor(@OrmRepository() private userRepository: UserRepository) {
         super(User);
     }
 
-    async getById(userId: number): Promise<User> {
+    async getById(id: number): Promise<User | undefined> {
         const relations: string[] = [];
-        console.log("userId ===>:" + userId);
-        return super.getById(userId, relations);
+        console.log("userId ===>:" + id);
+        return super.getById(id, relations);
+    }
+
+    public findById(id: number): Promise<User | undefined> {
+        return this.userRepository.findOne({id});
     }
 
 }

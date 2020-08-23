@@ -135,9 +135,9 @@ export const postForgot = async (req: Request, res: Response, next: NextFunction
     });
 };
 
-export const userInfo = async (req: Request, res: Response, next: NextFunction) => {
+export const userInfor = async (req: Request, res: Response, next: NextFunction) => {
     const userService = Container.get(UserService);
-    const user = await userService.getById(1);
+    const user = await userService.findById(1);
     if (user)
         return res.status(200).json(user);
     return res.status(200).json({
