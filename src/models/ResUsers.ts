@@ -4,18 +4,24 @@ import {BaseModel} from "./BaseModel";
 import * as bcrypt from "bcrypt";
 
 @Entity()
-@Unique(["email"])
-export class Users extends BaseModel {
+export class User extends BaseModel {
+    @Column({length: 45})
+    nickname!: string;
+
     @Column({length: 10})
     @IsString()
     name!: string;
 
+    @Column({type: "date"})
+    @IsDate()
+    birthday!: Date;
+
     @Column({length: 200})
-    @IsString()
-    fullName!: string;
+    @IsUrl()
+    profile!: string;
 
     @Column({length: 25})
-    // @IsPhoneNumber("KR")
+    @IsPhoneNumber("KR")
     phone!: string;
 
     @Column({length: 35})
@@ -25,21 +31,7 @@ export class Users extends BaseModel {
     @Column({length: 45})
     password!: string;
 
-    @Column({length: 200})
-    address!: string;
-
-    @Column({length: 200})
-    avatar!: string;
-
-    @Column({type: "date"})
-    @IsDate()
-    birthday!: Date;
-
-    @IsDate()
-    @Column({nullable: true, type: "date", default: null})
-    deletedAt?: Date | null;
-
-    public static comparePassword(user: Users, password: string): Promise<boolean> {
+    public static comparePassword(user: User, password: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
             bcrypt.compare(password, user.password, (err, res) => {
                 resolve(res === true);

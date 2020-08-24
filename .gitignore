@@ -17,8 +17,6 @@ tmp
 coverage
 
 # API keys and secrets
-.env
-
 # Dependency directory
 node_modules
 bower_components

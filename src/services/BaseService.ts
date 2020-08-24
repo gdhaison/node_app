@@ -80,7 +80,6 @@ export abstract class BaseService<T extends BaseModel> {
     async softDelete(id: number): Promise<T> {
         const oldOne = await (this.getById(id) as Promise<T>);
         const newOne: Partial<T> = {};
-        newOne.deletedAt = new Date();
         return this.genericRepository.save({...oldOne, ...newOne} as object);
     }
 }

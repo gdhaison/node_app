@@ -11,13 +11,13 @@ const app = createExpressServer({
     controllers: [UserController, PostController, AuthController]
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 5000;
 
 async function startApplication() {
     try {
         await connectDatabase();
         console.log("Database is connected successfully");
-        app.listen(3001);
+        app.listen(PORT);
     } catch (err) {
         console.error(err);
         throw err;

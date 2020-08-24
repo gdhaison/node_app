@@ -1,12 +1,12 @@
 import {EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
-import {User} from "../models/Users";
+import {Users} from "../models/Users";
 
 @Service()
-@EntityRepository(User)
-export class UserRepository extends Repository<User> {
+@EntityRepository(Users)
+export class UserRepository extends Repository<Users> {
 
-    findByName(nickname: string, name: string) {
-        return this.findOne({nickname, name});
+    findByName(name: string) {
+        return this.findOne({name});
     }
 }

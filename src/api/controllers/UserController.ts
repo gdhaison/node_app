@@ -1,10 +1,10 @@
-import {Body, Delete, Get, JsonController, Param, Post, Put, UseAfter, UseBefore} from "routing-controllers";
-import {Authentication, Authorization} from "../../middlewares";
+import {Body, Delete, Get, JsonController, Param, Post, Put, UseBefore} from "routing-controllers";
+import {Authentication} from "../../middlewares";
 import {UserService} from "../../services/UserService";
+import {Users} from "../../models";
 
 @JsonController("/users")
 @UseBefore(Authentication)
-@UseAfter(Authorization)
 export class UserController {
     constructor(
         private _userService: UserService
@@ -12,19 +12,26 @@ export class UserController {
 
     @Get()
     async getAll() {
-        const user1 = await this._userService.getById(1);
-        const user = await this._userService.findById(1);
-        return user;
+        return await this._userService.getAll();
     }
 
     @Get("/:id")
-    getOne(@Param("id") id: number) {
-        return "This action returns user #" + id;
+    async getById(@Param("id") id: number) {
+        return await this._userService.getById(id);
     }
 
     @Post()
-    post(@Body() user: any) {
-        return "Saving user...";
+    create(@Body() user: any): Promise<Users> {
+        const currentDate = new Date();
+        const userSave = new Users();
+        userSave.birthday = currentDate;
+        userSave.email = user.email;
+        userSave.name = user.name;
+        userSave.phone = user.phone;
+        userSave.createdAt = currentDate;
+        userSave.updatedAt = currentDate;
+        userSave.password = user.password;
+        return this._userService.create(user);
     }
 
     @Put("/:id")

@@ -20,7 +20,4 @@ export abstract class BaseModel {
     @UpdateDateColumn()
     updatedAt!: Date;
 
-    @IsDate()
-    @Column({nullable: true, type: "date", default: null})
-    deletedAt?: Date | null;
 }
