@@ -1,4 +1,4 @@
-import {Column, CreateDateColumn, Generated, PrimaryColumn, UpdateDateColumn, ValueTransformer, PrimaryGeneratedColumn} from "typeorm";
+import {CreateDateColumn, PrimaryColumn, UpdateDateColumn, ValueTransformer, PrimaryGeneratedColumn} from "typeorm";
 import {IsDate, IsInt} from "class-validator";
 
 const bigIntTransformer: ValueTransformer = {
@@ -14,10 +14,10 @@ export abstract class BaseModel {
 
     @IsDate()
     @CreateDateColumn()
-    createdAt!: Date;
+    createDate!: Date;
 
     @IsDate()
     @UpdateDateColumn()
-    updatedAt!: Date;
+    writeDate!: Date;
 
 }

@@ -6,6 +6,13 @@ import * as bcrypt from "bcrypt";
 @Entity()
 @Unique(["email"])
 export class Users extends BaseModel {
+    constructor(id: number, name: string, fullName: string) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.fullName = fullName;
+    }
+
     @Column({length: 10})
     @IsString()
     name!: string;

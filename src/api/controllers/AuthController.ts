@@ -1,33 +1,24 @@
 import {Body, JsonController, Post} from "routing-controllers";
-import {UserService} from "../../services/UserService";
-import {Users} from "../../models";
+import {ResPartnerService} from "../../services/ResPartnerService";
+import {AuthService} from "../../services/AuthService";
+import jwt from "jsonwebtoken";
 
 @JsonController("/auth")
 export class AuthController {
     constructor(
-        private _userService: UserService
+        private _resPartnerService: ResPartnerService,
+        private _authService: AuthService
     ) {
     }
 
-    // @Post("/sign-up")
-    // public signUp(@Body() user: any): Promise<User> {
-    //     const userSave = new User();
-    //     userSave.birthday = new Date("2020-08-22T18:01:07");
-    //     userSave.email = "hoa9x31111@gmail.com";
-    //     userSave.name = "Quang Hoa";
-    //     userSave.nickname = "hoaronal";
-    //     userSave.phone = "0939300981";
-    //     userSave.profile = "Hahahah";
-    //     userSave.createdAt = new Date("2020-08-22T18:01:07");
-    //     userSave.deletedAt = new Date("2020-08-22T18:01:07");
-    //     userSave.updatedAt = new Date("2020-08-22T18:01:07");
-    //     userSave.password = "Quanghoa1993";
-    //     return this._userService.create(userSave);
-    // }
-
-    @Post("sign-in")
-    public signIn(@Body() user: any) {
-        return "Saving user...";
+    @Post("/login")
+    public async signIn(@Body() user: any) {
+        const {phone, password} = user;
+        const userRecord = await this._resPartnerService.getByPhone(phone);
+        const token = jwt.sign(user, "quangHoa", {expiresIn: 3600});
+        const refreshToken = jwt.sign(user, "quangHoa", {expiresIn: 86400});
+        // const { users, token } = await this._authService.SignIn(email, password);
+        return user;
     }
 
 }

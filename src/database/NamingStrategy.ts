@@ -3,9 +3,9 @@ import {DefaultNamingStrategy} from "typeorm";
 import {snakeCase} from "typeorm/util/StringUtils";
 
 export class NamingStrategy extends DefaultNamingStrategy {
-    tableName(targetName: string, userSpecifiedName: string | undefined): string {
-        return plural(snakeCase(userSpecifiedName || targetName));
-    }
+    // tableName(targetName: string, userSpecifiedName: string | undefined): string {
+    //     return plural(snakeCase(userSpecifiedName || targetName));
+    // }
 
     relationName(propertyName: string): string {
         return snakeCase(propertyName);
