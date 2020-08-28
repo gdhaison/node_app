@@ -1,4 +1,4 @@
-import {plural} from "pluralize";
+// import {plural} from "pluralize";
 import {DefaultNamingStrategy} from "typeorm";
 import {snakeCase} from "typeorm/util/StringUtils";
 

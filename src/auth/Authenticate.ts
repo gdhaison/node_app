@@ -4,29 +4,28 @@ import Container from "typedi";
 import {ResPartnerService} from "../services/ResPartnerService";
 
 export interface Itoken {
-    userId: number;
+    phone: string;
     iat: number;
     exp: number;
 }
 
 export class Authentication {
     static isToken(token: string) {
-        return /Bearer\s[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/.test(
-            token,
-        );
+        return /Bearer\s[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/.test(token);
     }
 
-    static generateToken(userId: number): string {
-        return jwt.sign({userId}, process.env.CRYPTO_SECRETKEY || "", {
+    static generateToken(phone: string): string {
+        const token = jwt.sign({phone}, process.env.JWT_SECRET || "", {
             algorithm: "HS512",
             expiresIn: "1d",
         });
+        return `Bearer ${token}`;
     }
 
     static verifyToken(token: string): boolean {
         const data: Itoken = jwt.verify(
             token,
-            process.env.CRYPTO_SECRETKEY || "",
+            process.env.JWT_SECRET || "",
             {algorithms: ["HS512"]},
         ) as Itoken;
 
@@ -38,19 +37,19 @@ export class Authentication {
     static refreshToken(token: string): string {
         const data: Itoken = jwt.verify(
             token,
-            process.env.CRYPTO_SECRETKEY || "",
+            process.env.JWT_SECRET || "",
             {algorithms: ["HS512"]},
         ) as Itoken;
         if (data.exp - new Date().getTime() / 1000 < 60 * 60) {
-            return Authentication.generateToken(data.userId);
+            return Authentication.generateToken(data.phone);
         }
         return token;
     }
 
-    static getUserIdByToken(token: string): Pick<Itoken, "userId"> {
-        return jwt.verify(token, process.env.CRYPTO_SECRETKEY || "", {
+    static getUserIdByToken(token: string): Pick<Itoken, "phone"> {
+        return jwt.verify(token, process.env.JWT_SECRET || "", {
             algorithms: ["HS512"],
-        }) as Pick<Itoken, "userId">;
+        }) as Pick<Itoken, "phone">;
     }
 
     static async currentUserChecker(action: Action) {
@@ -63,11 +62,10 @@ export class Authentication {
             return false;
         }
         const userService = Container.get(ResPartnerService);
-        const user = await userService.getById(
-            Authentication.getUserIdByToken(token).userId,
-        );
+        const phone = Authentication.getUserIdByToken(token).phone;
+        const user = await userService.getByPhone(phone);
 
-        action.request.query.user = user;
-        return user;
+        action.request.query.user = user[0];
+        return user[0];
     }
 }

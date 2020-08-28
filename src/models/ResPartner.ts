@@ -1,8 +1,11 @@
 import {Column, Entity} from "typeorm";
 import {BaseModel} from "./BaseModel";
+import {IsString} from "class-validator";
 
 @Entity({name: "res_partner"})
 export class ResPartner extends BaseModel {
+    @Column({length: 50, name: "name"})
+    name!: string;
 
     @Column({name: "email"})
     email!: string;
@@ -15,6 +18,9 @@ export class ResPartner extends BaseModel {
 
     @Column({name: "x_lw_gender"})
     gender!: string;
+
+    @Column({name: "address"})
+    address!: string;
 
     @Column({length: 20, name: "phone"})
     phone!: string;
@@ -42,5 +48,11 @@ export class ResPartner extends BaseModel {
 
     @Column({name: "avatar"})
     avatar!: string;
+
+    @Column({name: "physical"})
+    physical!: string;
+
+    @Column({name: "muscle"})
+    muscle!: string;
 
 }

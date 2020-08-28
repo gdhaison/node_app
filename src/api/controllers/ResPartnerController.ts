@@ -1,10 +1,23 @@
-import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, UseBefore} from "routing-controllers";
-import {Authentication} from "../../middlewares";
+import {
+    Body,
+    CurrentUser,
+    Delete,
+    Get,
+    JsonController,
+    Param,
+    QueryParam,
+    Post,
+    Put,
+    UseBefore, UploadedFile
+} from "routing-controllers";
 import {ResPartnerService} from "../../services/ResPartnerService";
-import {Users} from "../../models";
-import {UserCreateRequest} from "../../models/dto/UserCreateRequest";
+import {ResPartner} from "../../models";
+import {UserNotFoundError} from "../errors/UserNotFoundError";
+import bodyParser from "body-parser";
+type File = Express.Multer.File;
 
 @JsonController("/users")
+@UseBefore(bodyParser.urlencoded({extended: true}))
 export class ResPartnerController {
     constructor(
         private _resPartnerService: ResPartnerService
@@ -12,8 +25,7 @@ export class ResPartnerController {
     }
 
     @Get()
-    @UseBefore(Authentication)
-    getAll(@CurrentUser({required: true}) user: Users) {
+    getAll(@CurrentUser({required: true}) user: ResPartner) {
         return this._resPartnerService.getAll();
     }
 
@@ -23,7 +35,7 @@ export class ResPartnerController {
     }
 
     @Post("/register")
-    create(@Body() user: UserCreateRequest){
+    create(@Body() user: any){
         const response = this._resPartnerService.create(user).then(function(result) {
             const res = JSON.parse(JSON.stringify(result));
             res.accessToken = "";
@@ -32,13 +44,19 @@ export class ResPartnerController {
         return response;
     }
 
-    @Put("/:id")
-    put(@Param("id") id: number, @Body() user: any) {
-        return "Updating a user...";
+    @Put("/infor/:id")
+    update(@Param("id") id: number, @Body() form: any, @UploadedFile("avatar") fileAvatar: File) {
+        form.avatar = fileAvatar.originalname;
+        const response = this._resPartnerService.changeInfoUser(form, id).then(function(result) {
+            return result;
+        });
+        return response;
     }
 
     @Delete("/:id")
-    remove(@Param("id") id: number) {
+    remove(@Param("id") id: number, @QueryParam("search") search: string) {
+        throw new UserNotFoundError();
+
         return "Removing user...";
     }
 

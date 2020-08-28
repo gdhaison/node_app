@@ -2,11 +2,12 @@ import "reflect-metadata";
 import "./utils/env";
 import {connectDatabase} from "./database/db";
 import {authorizationChecker} from "./auth/authorizationChecker";
-import {currentUserChecker} from "./auth/currentUserChecker";
 import {getConnection} from "typeorm";
 import {Container} from "typedi";
 import {AuthController, PostController, ResPartnerController} from "./api/controllers";
 import {createExpressServer, useContainer} from "routing-controllers";
+import {Authentication} from "./auth/Authenticate";
+import bodyParser from "body-parser";
 
 useContainer(Container);
 
@@ -21,7 +22,7 @@ async function startApplication() {
         const app = createExpressServer({
             controllers: [ResPartnerController, PostController, AuthController],
             authorizationChecker: authorizationChecker(connection),
-            currentUserChecker: currentUserChecker(connection),
+            currentUserChecker: Authentication.currentUserChecker,
         });
         app.listen(PORT);
     } catch (err) {
