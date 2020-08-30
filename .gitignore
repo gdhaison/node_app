@@ -24,7 +24,7 @@ bower_components
 # Editors
 .idea
 *.iml
-
+.env
 # OS metadata
 .DS_Store
 Thumbs.db

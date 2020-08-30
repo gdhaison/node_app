@@ -10,6 +10,7 @@ import argon2 from "argon2";
 import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
 import {UpdateResult} from "typeorm/query-builder/result/UpdateResult";
+import {UserNotFoundError} from "../api/errors/UserNotFoundError";
 
 @Service()
 export class ResPartnerService extends BaseService<ResPartner> {
@@ -33,12 +34,26 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.findOne({id});
     }
 
-    public async changeInfoUser(userInfo: any, id: number): Promise<UpdateResult> {
-        return this._resPartnerRepository.updateInfo(userInfo, id);
+    public async changeInfoUser(userInfo: any, user: ResPartner): Promise<ResPartner> {
+        if (userInfo.email) {
+            user.email = userInfo.email;
+        }
+        if (userInfo.avatar) {
+            user.avatar = userInfo.avatar;
+        }
+        if (userInfo.address) {
+            user.address = userInfo.address;
+        }
+        user.writeDate = new Date();
+        return this._resPartnerRepository.save(user);
     }
 
     public async create(user: UserCreateRequest): Promise<ResPartner> {
         logger.info(user);
+        const userValid = await this.getByPhone(user.phone);
+        if (userValid && userValid.length > 0)
+            throw new UserNotFoundError(`User already exists with phone ${user.phone}!`);
+
         const salt = randomBytes(32);
         const payload: Partial<ResPartner> = {};
         const now = DateUtils.now("YYYY-MM-DD HH:mm:ss");
@@ -68,8 +83,8 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (user.weight) {
             payload.weight = user.weight;
         }
-        if (user.targetWeight) {
-            payload.targetWeight = user.targetWeight;
+        if (user.target_weight) {
+            payload.targetWeight = user.target_weight;
         }
         if (user.physical) {
             payload.physical = user.physical;

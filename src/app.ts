@@ -4,13 +4,10 @@ import {connectDatabase} from "./database/db";
 import {authorizationChecker} from "./auth/authorizationChecker";
 import {getConnection} from "typeorm";
 import {Container} from "typedi";
-import {AuthController, PostController, ResPartnerController} from "./api/controllers";
 import {createExpressServer, useContainer} from "routing-controllers";
 import {Authentication} from "./auth/Authenticate";
-import bodyParser from "body-parser";
 
 useContainer(Container);
-
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,7 +17,8 @@ async function startApplication() {
         const connection = getConnection();
         console.log("Database is connected successfully");
         const app = createExpressServer({
-            controllers: [ResPartnerController, PostController, AuthController],
+            controllers: [`${__dirname}/api/controllers/*{.js,.ts}`],
+            middlewares: [`${__dirname}/middlewares/*{.js,.ts}`],
             authorizationChecker: authorizationChecker(connection),
             currentUserChecker: Authentication.currentUserChecker,
         });

@@ -5,11 +5,7 @@ import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
 
     public error(error: HttpError, req: express.Request, res: express.Response, next: express.NextFunction): void {
-        res.status(error.httpCode || 500);
-        res.json({
-            name: error.name,
-            message: error.message,
-            // errors: error["errors"] || [],
-        });
+        console.log("Error handled: ", error);
+        next({sss:"sdsdsd"});
     }
 }
