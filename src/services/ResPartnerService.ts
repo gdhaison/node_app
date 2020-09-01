@@ -1,15 +1,14 @@
 import {Service} from "typedi";
-import {Users} from "../models/Users";
+import {Users, ResPartner} from "../models";
 import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {ResPartnerRepository} from "../repositories/ResPartnerRepository";
-import {ResPartner} from "../models/ResPartner";
 import {UserCreateRequest} from "../models/dto/UserCreateRequest";
 import {DateUtils} from "../utils/DateUtils";
 import argon2 from "argon2";
 import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
-import {UserNotFoundError} from "../api/errors/UserNotFoundError";
+import {UserExitsError} from "../api/errors/UserExitsError";
 
 @Service()
 export class ResPartnerService extends BaseService<ResPartner> {
@@ -51,7 +50,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         logger.info(user);
         const userValid = await this.getByPhone(user.phone);
         if (userValid && userValid.length > 0)
-            throw new UserNotFoundError(`User already exists with phone ${user.phone}!`);
+            throw new UserExitsError();
 
         const salt = randomBytes(32);
         const payload: Partial<ResPartner> = {};
@@ -82,8 +81,8 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (user.weight) {
             payload.weight = user.weight;
         }
-        if (user.targetWeight) {
-            payload.targetWeight = user.targetWeight;
+        if (user.target_weight) {
+            payload.targetWeight = user.target_weight;
         }
         if (user.physical) {
             payload.physical = user.physical;

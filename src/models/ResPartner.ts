@@ -1,6 +1,5 @@
 import {Column, Entity} from "typeorm";
 import {BaseModel} from "./BaseModel";
-import {IsString} from "class-validator";
 
 @Entity({name: "res_partner"})
 export class ResPartner extends BaseModel {

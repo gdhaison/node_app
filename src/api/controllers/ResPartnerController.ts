@@ -5,10 +5,11 @@ import {
     Get,
     JsonController,
     Param,
-    QueryParam,
     Post,
     Put,
-    UseBefore, UploadedFile
+    QueryParam,
+    UploadedFile,
+    UseBefore
 } from "routing-controllers";
 import {ResPartnerService} from "../../services/ResPartnerService";
 import {ResPartner} from "../../models";
@@ -19,6 +20,7 @@ import logger from "../../lib/logger/logger";
 import {Authentication} from "../../auth/Authenticate";
 import snakeCase from "snakecase-keys";
 import {UserCreateRequest} from "../../models/dto/UserCreateRequest";
+
 type File = Express.Multer.File;
 
 @JsonController("/users")
@@ -41,30 +43,39 @@ export class ResPartnerController {
 
     @Post("/register")
     async create(@Body() user: Partial<UserCreateRequest>) {
-        const response = this._resPartnerService.create(user).then(function (result) {
+        return this._resPartnerService.create(user).then(function (result) {
             const res = JSON.parse(JSON.stringify(result));
             const jwt = Authentication.generateToken(result.phone);
-            res.accessToken = jwt;
-            return snakeCase(res);
+            return snakeCase({
+                id: res.id,
+                access_token: jwt,
+                full_name: "",
+                email: res.email,
+                phone: res.phone,
+                avatar: "",
+                address: res.address,
+                dob: res.dob,
+                gender: res.gender,
+                height: res.height,
+                weight: res.weight,
+                target_weight: res.target_weight,
+                physical: res.physical,
+                muscle: res.muscle,
+            });
         });
-        return response;
     }
 
     @Put("/infor")
     update(@CurrentUser({required: true}) user: ResPartner, @Body() form: any, @UploadedFile("avatar") fileAvatar: File) {
         form.avatar = fileAvatar.originalname;
-        const response = this._resPartnerService.changeInfoUser(form, user).then(function(result) {
+        return this._resPartnerService.changeInfoUser(form, user).then(function (result) {
             return result;
         });
-
-        return response;
     }
 
     @Delete("/:id")
     remove(@Param("id") id: number, @QueryParam("search") search: string) {
-        throw new UserNotFoundError("User not found!");
-
-        return "Removing user...";
+        throw new UserNotFoundError();
     }
 
     @Post("/login")
@@ -91,11 +102,11 @@ export class ResPartnerController {
             phone: `${userLogin.phone}`,
             avatar: `${userLogin.avatar}`,
             address: `${userLogin.address}`,
-            dob: `${userLogin.dob}`,
-            gender: `${userLogin.gender}`,
-            height:userLogin.height,
+            dob: userLogin.dob,
+            gender: userLogin.gender,
+            height: userLogin.height,
             weight: userLogin.weight,
-            target_weight:userLogin.targetWeight,
+            target_weight: userLogin.targetWeight,
             physical: `${userLogin.physical}`,
             muscle: `${userLogin.muscle}`,
         };
