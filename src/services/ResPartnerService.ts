@@ -9,7 +9,6 @@ import {DateUtils} from "../utils/DateUtils";
 import argon2 from "argon2";
 import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
-import {UpdateResult} from "typeorm/query-builder/result/UpdateResult";
 import {UserNotFoundError} from "../api/errors/UserNotFoundError";
 
 @Service()
@@ -48,7 +47,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.save(user);
     }
 
-    public async create(user: UserCreateRequest): Promise<ResPartner> {
+    public async create(user: Partial<UserCreateRequest>): Promise<ResPartner> {
         logger.info(user);
         const userValid = await this.getByPhone(user.phone);
         if (userValid && userValid.length > 0)
@@ -83,8 +82,8 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (user.weight) {
             payload.weight = user.weight;
         }
-        if (user.target_weight) {
-            payload.targetWeight = user.target_weight;
+        if (user.targetWeight) {
+            payload.targetWeight = user.targetWeight;
         }
         if (user.physical) {
             payload.physical = user.physical;

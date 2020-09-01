@@ -40,7 +40,7 @@ export class ResPartnerController {
     }
 
     @Post("/register")
-    async create(@Body() user: UserCreateRequest) {
+    async create(@Body() user: Partial<UserCreateRequest>) {
         const response = this._resPartnerService.create(user).then(function (result) {
             const res = JSON.parse(JSON.stringify(result));
             const jwt = Authentication.generateToken(result.phone);

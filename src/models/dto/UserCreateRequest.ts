@@ -28,7 +28,7 @@ export class UserCreateRequest {
     weight!: number;
 
     @JsonProperty({name: "target_weight"})
-    target_weight!: number;
+    targetWeight!: number;
 
     @IsString()
     physical!: string;
