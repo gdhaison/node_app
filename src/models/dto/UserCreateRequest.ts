@@ -5,6 +5,9 @@ export class UserCreateRequest {
     @IsEmail()
     email!: string;
 
+    @IsEmail()
+    name!: string;
+
     @IsString()
     @Matches(RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/))
     password!: string;

@@ -4,8 +4,11 @@ import {LwDiet} from "./LwDiet";
 
 @Entity({name: "res_partner"})
 export class ResPartner extends BaseModel {
-    @Column({length: 50, name: "name"})
+    @Column({name: "name"})
     name!: string;
+
+    @Column({name: "display_name"})
+    displayName!: string;
 
     @Column({name: "email"})
     email!: string;
