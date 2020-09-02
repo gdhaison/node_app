@@ -58,7 +58,7 @@ export class ResPartnerController {
                 gender: res.gender,
                 height: res.height,
                 weight: res.weight,
-                target_weight: res.target_weight,
+                target_weight: res.targetWeight,
                 physical: res.physical,
                 muscle: res.muscle,
             });
