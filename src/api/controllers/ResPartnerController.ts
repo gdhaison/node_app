@@ -87,6 +87,7 @@ export class ResPartnerController {
             return {message: `User not found with phone ${phone}`};
         }
 
+
         const validPassword = await argon2.verify(userLogin.password, password);
         if (!validPassword) {
             return {message: `Login with phone ${phone} error, password not valid!`};
