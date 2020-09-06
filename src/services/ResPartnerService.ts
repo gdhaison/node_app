@@ -60,6 +60,10 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (user.email) {
             payload.email = user.email;
         }
+        if (user.name) {
+            payload.name = user.name;
+            payload.displayName = user.name;
+        }
         if (user.password) {
             payload.password = await argon2.hash(user.password, {salt});
         }
