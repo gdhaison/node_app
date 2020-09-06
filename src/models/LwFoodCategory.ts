@@ -12,5 +12,5 @@ export class LwFoodCategory extends BaseModel {
     public code: string;
 
     @OneToMany(type => LwFood, lwFood => lwFood.category)
-    lwFood: LwFood
+    lwFood: LwFood;
 }

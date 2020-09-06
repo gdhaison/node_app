@@ -1,5 +1,6 @@
-import {Column, Entity} from "typeorm";
+import {Column, Entity, OneToMany} from "typeorm";
 import {BaseModel} from "./BaseModel";
+import {LwDiet} from "./LwDiet";
 
 @Entity({name: "res_partner"})
 export class ResPartner extends BaseModel {
@@ -54,4 +55,6 @@ export class ResPartner extends BaseModel {
     @Column({name: "muscle"})
     muscle!: string;
 
+    @OneToMany(type => LwDiet, lwDiet => lwDiet.resPartner )
+    lwDiets: LwDiet
 }
