@@ -4,6 +4,7 @@ import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwFoodRepository} from "../repositories/LwFoodRepository";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
+import {FoodCreateRequest} from "../models/dto/FoodCreateRequest";
 
 @Service()
 export class LwFoodService extends BaseService<LwFood> {
@@ -20,6 +21,29 @@ export class LwFoodService extends BaseService<LwFood> {
         if (!food)
             throw new FoodNotFoundError();
         return food;
+    }
+
+    public async create(food: Partial<FoodCreateRequest>): Promise<LwFood> {
+        const payload: Partial<LwFood> = {};
+        if (food.name) {
+            payload.name = food.name;
+        }
+        if (food.calo) {
+            payload.calo = food.calo;
+        }
+        if (food.image) {
+            // payload.image = food.image;
+        }
+        if (food.description) {
+            payload.description = food.description;
+        }
+        const now = new Date();
+        payload.createDate = now;
+        payload.writeDate = now;
+        payload.totalLike = 0;
+        payload.prepareTime = 0;
+        payload.cookingTime = 0;
+        return this.lwfoodRepository.save(payload);
     }
 
 }

@@ -1,12 +1,19 @@
 import {LwFoodService} from "../../services/FoodService";
-import {Get, JsonController, QueryParam} from "routing-controllers";
+import {Body, Get, JsonController, QueryParam} from "routing-controllers";
 import snakeCase from "snakecase-keys";
+import {Post} from "routing-controllers/decorator/Post";
+import {FoodCreateRequest} from "../../models/dto/FoodCreateRequest";
 
 @JsonController("/diets")
 export class LwFoodController {
     constructor(
         private _lwfoodService: LwFoodService
     ) {
+    }
+
+    @Post("/food")
+    public async addFood(@Body() food: FoodCreateRequest) {
+        return this._lwfoodService.create(food);
     }
 
     @Get("/search")

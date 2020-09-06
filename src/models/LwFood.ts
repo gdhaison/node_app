@@ -6,9 +6,6 @@ import {LwFoodLwMenuRel} from "./LwFoodLwMenuRel";
 @Entity({name: "lw_food"})
 export class LwFood extends BaseModel {
 
-    @PrimaryGeneratedColumn({name: "id"})
-    id: number;
-
     @Column({name: "name"})
     public name: string;
 
@@ -19,13 +16,16 @@ export class LwFood extends BaseModel {
     public description: string;
 
     @Column({name: "total_like"})
-    public totalLike: string;
+    public totalLike: number;
 
     @Column({name: "recommend_level"})
     public recommendLevel: string;
 
     @Column({name: "prepare_time"})
-    public prepareTime: string;
+    public prepareTime: number;
+
+    @Column({name: "cooking_time"})
+    public cookingTime: number;
 
     @ManyToOne(type => LwFoodCategory, lwFoodCategory => lwFoodCategory.lwFood)
     category: LwFoodCategory

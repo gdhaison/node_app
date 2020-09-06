@@ -5,7 +5,6 @@ export class UserCreateRequest {
     @IsEmail()
     email!: string;
 
-    @IsEmail()
     name!: string;
 
     @IsString()

@@ -54,9 +54,6 @@ export class ResPartnerService extends BaseService<ResPartner> {
 
         const salt = randomBytes(32);
         const payload: Partial<ResPartner> = {};
-        const now = DateUtils.now("YYYY-MM-DD HH:mm:ss");
-        user.createDate = now;
-        user.writeDate = now;
         if (user.email) {
             payload.email = user.email;
         }
