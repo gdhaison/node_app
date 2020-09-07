@@ -7,7 +7,7 @@ import {
     Param,
     Post,
     Put,
-    QueryParam,
+    QueryParam, Req, Res,
     UploadedFile,
     UseBefore
 } from "routing-controllers";
@@ -20,7 +20,9 @@ import logger from "../../lib/logger/logger";
 import {Authentication} from "../../auth/Authenticate";
 import snakeCase from "snakecase-keys";
 import {UserCreateRequest} from "../../models/dto/UserCreateRequest";
-
+import {StatusCodes} from "http-status-codes";
+import {ErrorCode} from "../../enums/ErrorCode";
+import express from "express";
 type File = Express.Multer.File;
 
 @JsonController("/users")
@@ -79,17 +81,28 @@ export class ResPartnerController {
     }
 
     @Post("/login")
-    public async signIn(@Body() user: any) {
+    public async signIn(@Req() req: express.Request, @Res() res: express.Response, @Body() user: any) {
         const {phone, password} = user;
         const resPartners = await this._resPartnerService.getByPhone(phone);
         const userLogin = resPartners[0];
         if (!userLogin) {
-            return {message: `User not found with phone ${phone}`};
+            res.status(StatusCodes.NOT_FOUND);
+            return {
+                message: `User not found with phone ${phone}`,
+                code: ErrorCode.USER_NOT_FOUND,
+                status: StatusCodes.NOT_FOUND,
+            };
         }
+
 
         const validPassword = await argon2.verify(userLogin.password, password);
         if (!validPassword) {
-            return {message: `Login with phone ${phone} error, password not valid!`};
+            res.status(StatusCodes.UNAUTHORIZED);
+            return {
+                message: `Login with phone ${phone} error, password not valid!`,
+                code: ErrorCode.PASSWORD_INVALID,
+                status: StatusCodes.UNAUTHORIZED,
+            };
         }
         logger.info("Password is valid!");
         logger.info("Generating JWT");
