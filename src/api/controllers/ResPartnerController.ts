@@ -23,6 +23,7 @@ import {UserCreateRequest} from "../../models/dto/UserCreateRequest";
 import {StatusCodes} from "http-status-codes";
 import {ErrorCode} from "../../enums/ErrorCode";
 import express from "express";
+import {UserInfoRequest} from "../../models/dto/UserInfoRequest";
 type File = Express.Multer.File;
 
 @JsonController("/users")
@@ -44,34 +45,49 @@ export class ResPartnerController {
     }
 
     @Post("/register")
-    async create(@Body() user: Partial<UserCreateRequest>) {
+    async create(@Body() user: UserCreateRequest) {
         return this._resPartnerService.create(user).then(function (result) {
-            const res = JSON.parse(JSON.stringify(result));
             const jwt = Authentication.generateToken(result.phone);
             return snakeCase({
-                id: res.id,
+                id: result.id,
                 access_token: jwt,
-                full_name: "",
-                email: res.email,
-                phone: res.phone,
+                full_name: result.name,
+                email: result.email,
+                phone: result.phone,
                 avatar: "",
-                address: res.address,
-                dob: res.dob,
-                gender: res.gender,
-                height: res.height,
-                weight: res.weight,
-                target_weight: res.targetWeight,
-                physical: res.physical,
-                muscle: res.muscle,
+                address: result.address,
+                dob: result.dob,
+                gender: result.gender,
+                height: result.height,
+                weight: result.weight,
+                target_weight: result.targetWeight,
+                physical: result.physical,
+                muscle: result.muscle,
             });
         });
     }
 
     @Put("/infor")
-    update(@CurrentUser({required: true}) user: ResPartner, @Body() form: any, @UploadedFile("avatar") fileAvatar: File) {
-        form.avatar = fileAvatar.originalname;
+    update(@CurrentUser({required: true}) user: ResPartner, @Body() form: UserInfoRequest, @UploadedFile("avatar") fileAvatar: File) {
+        fileAvatar.originalname;
         return this._resPartnerService.changeInfoUser(form, user).then(function (result) {
-            return result;
+            const jwt = Authentication.generateToken(result.phone);
+            return {
+                id: result.id,
+                access_token: jwt,
+                full_name: result.name,
+                email: result.email,
+                phone: result.phone,
+                avatar: "",
+                address: result.address,
+                dob: result.dob,
+                gender: result.gender,
+                height: result.height,
+                weight: result.weight,
+                target_weight: result.targetWeight,
+                physical: result.physical,
+                muscle: result.muscle,
+            };
         });
     }
 

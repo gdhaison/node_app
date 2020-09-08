@@ -9,6 +9,7 @@ import argon2 from "argon2";
 import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
 import {UserExitsError} from "../api/errors/UserExitsError";
+import {UserInfoRequest} from "../models/dto/UserInfoRequest";
 
 @Service()
 export class ResPartnerService extends BaseService<ResPartner> {
@@ -32,21 +33,22 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.findOne({id});
     }
 
-    public async changeInfoUser(userInfo: any, user: ResPartner): Promise<ResPartner> {
+    public async changeInfoUser(userInfo: UserInfoRequest, user: ResPartner): Promise<ResPartner> {
+        if (userInfo.name) {
+            user.name = userInfo.name;
+        }
         if (userInfo.email) {
             user.email = userInfo.email;
-        }
-        if (userInfo.avatar) {
-            user.avatar = userInfo.avatar;
         }
         if (userInfo.address) {
             user.address = userInfo.address;
         }
         user.writeDate = new Date();
+        user.avatar = "";
         return this._resPartnerRepository.save(user);
     }
 
-    public async create(user: Partial<UserCreateRequest>): Promise<ResPartner> {
+    public async create(user: UserCreateRequest): Promise<ResPartner> {
         logger.info(user);
         const userValid = await this.getByPhone(user.phone);
         if (userValid && userValid.length > 0)
