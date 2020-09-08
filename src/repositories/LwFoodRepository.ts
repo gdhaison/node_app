@@ -6,6 +6,7 @@ import {LwFoodStar} from "../models/LwFoodStar";
 import {RatingRequest} from "../models/dto/RatingRequest";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
+import {types} from "node-sass";
 
 @Service()
 @EntityRepository(LwFood)
@@ -80,4 +81,46 @@ export class LwFoodRepository extends Repository<LwFood> {
             });
         }
     }
+
+
+    async findFoodByDateCategory(
+        date: string,
+        category: string,
+        user_id: number,
+        page: number,
+        limit: number):
+        Promise<any> {
+
+        const skippedItems = (page - 1) * limit;
+        const select_query = "SELECT \"lwFood\".\"id\" AS \"id\", \"lwFood\".\"name\" AS \"name\", \"lwFood\".\"image\" AS \"image\", \"lwFood\".\"calo\" AS \"calo\", \"lwFood\".\"description\" AS \"description\", \"lwFood\".\"total_like\" AS \"total_like\", \"lwFood\".\"recommend_level\" AS \"recommend_level\", \"lwFood\".\"prepare_time\" AS \"prepare_time\", \"lwFood\".\"cooking_time\" AS \"cooking_time\" ";
+        const query =
+            "FROM \"lw_food\" \"lwFood\" INNER JOIN \"lw_food_category\" \"lw_food_category\" ON lw_food_category.food_id = \"lwFood\".\"id\"  INNER JOIN \"lw_category\" \"lw_category\" ON \"lw_category\".\"id\" = lw_food_category.category_id  INNER JOIN \"lw_food_lw_menu_rel\" \"lw_food_lw_menu_rel\" ON lw_food_lw_menu_rel.lw_food_id = \"lwFood\".\"id\"  INNER JOIN \"lw_diet\" \"lw_diet\" ON lw_diet.lw_menu_id = " +
+            "lw_food_lw_menu_rel.lw_menu_id  INNER JOIN \"lw_week\" \"lw_week\" ON \"lw_week\".\"id\" = lw_diet.lw_week_id WHERE " +
+            "lw_week.day_of_week = '" + date + "' AND \"lw_category\".\"code\" = '"+ category +"' AND lw_diet.partner_id = "+ user_id ;
+        const count = await this.entityManager.query("SELECT COUNT(DISTINCT \"lwFood\".\"id\")" + query);
+        const result = await this.entityManager.query(select_query + query + "GROUP BY \"lwFood\".\"id\" LIMIT "+ limit +" OFFSET " + skippedItems);
+
+        const total = parseInt(count[0]["count"]);
+        let to = 0;
+        let nextPage = true;
+        if (total > page*limit) {
+            to = page*limit;
+        }
+        else{
+            to = total;
+            nextPage = false;
+        }
+        const data = {
+            data: result,
+            page: page,
+            limit: limit,
+            from: skippedItems + 1,
+            to: to,
+            total: total,
+            nextPage: nextPage
+        };
+
+        return data;
+    }
+
 }

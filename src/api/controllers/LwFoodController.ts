@@ -18,9 +18,6 @@ import {RatingRequest} from "../../models/dto/RatingRequest";
 import express from "express";
 import {ResPartner} from "../../models";
 import {StatusCodes} from "http-status-codes";
-import {ErrorCode} from "../../enums/ErrorCode";
-import {IsNumber, isNumberString, IsString} from "class-validator";
-
 
 
 @JsonController("/diets")
@@ -40,6 +37,18 @@ export class LwFoodController {
     @Get("/search")
     public async getAll(@QueryParam("search_text") search_text: string, @QueryParam("category") category: string) {
         return this._lwfoodService.search(search_text, category);
+    }
+
+    @Get("/foods")
+    getFoodByDate(
+        @QueryParam("date") date: string,
+        @QueryParam("category") category: string,
+        @QueryParam("page") page: number,
+        @QueryParam("limit") limit: number,
+        @CurrentUser({required: true}) user: ResPartner,
+    ): Promise<any> {
+        const user_id = user.id;
+        return this._lwfoodService.getFoodByDate(date, category, user_id, page, limit);
     }
 
     @Get("/:food_id")
