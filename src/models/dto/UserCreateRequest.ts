@@ -38,10 +38,4 @@ export class UserCreateRequest {
 
     @IsString()
     muscle!: string;
-
-    @JsonProperty({name: "create_date"})
-    createDate!: string;
-
-    @JsonProperty({name: "write_date"})
-    writeDate!: string;
 }
