@@ -33,4 +33,12 @@ export class LwNewService extends BaseService<LwNews> {
     public getNews (page: number, limit: number) {
         return this.lwNewsRepository.getNews(page, limit);
     }
+
+    public like(newsId: number, likeFlag: boolean, userId: number) {
+        return this.lwNewsRepository.like(newsId, likeFlag, userId);
+    }
+
+    public view(newsId: number, userId: number) {
+        return this.lwNewsRepository.view(newsId, userId);
+    }
 }
