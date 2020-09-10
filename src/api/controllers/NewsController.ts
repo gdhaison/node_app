@@ -5,7 +5,7 @@ import {Controller, Get} from "routing-controllers";
 @Controller()
 // @UseBefore(Authentication)1
 // @UseAfter(Authorization)
-export class PostController {
+export class NewsController {
     @Get("/posts")
     getAll() {
         return "This action returns all posts";

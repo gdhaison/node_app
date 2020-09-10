@@ -5,10 +5,12 @@ import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwFoodRepository} from "../repositories/LwFoodRepository";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {FoodCreateRequest} from "../models/dto/FoodCreateRequest";
+import {RatingRequest} from "../models/dto/RatingRequest";
+import { getManager } from "typeorm"; const entityManager = getManager();
 
 @Service()
 export class LwFoodService extends BaseService<LwFood> {
-    constructor(@OrmRepository() private lwfoodRepository: LwFoodRepository) {
+    constructor(@OrmRepository() private lwfoodRepository: LwFoodRepository, ) {
         super(LwFood);
     }
 
@@ -21,6 +23,10 @@ export class LwFoodService extends BaseService<LwFood> {
         if (!food)
             throw new FoodNotFoundError();
         return food;
+    }
+
+    public async rating(rating: RatingRequest): Promise<any> {
+        return this.lwfoodRepository.rating(rating);
     }
 
     public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {

@@ -1,6 +1,5 @@
 import {Column, Entity, Unique, PrimaryGeneratedColumn, ManyToOne, OneToMany} from "typeorm";
 import {BaseModel} from "./BaseModel";
-import {LwFoodCategory} from "./LwFoodCategory";
 import {LwFoodLwMenuRel} from "./LwFoodLwMenuRel";
 
 @Entity({name: "lw_food"})
@@ -29,9 +28,6 @@ export class LwFood extends BaseModel {
 
     @Column({name: "cooking_time"})
     public cookingTime: number;
-
-    @ManyToOne(type => LwFoodCategory, lwFoodCategory => lwFoodCategory.lwFood)
-    category: LwFoodCategory
 
     @OneToMany(type => LwFoodLwMenuRel, lwFoodLwMenu => lwFoodLwMenu.lwFood)
     relFoodMenu: LwFoodLwMenuRel

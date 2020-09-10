@@ -1,3 +1,3 @@
 export {ResPartnerController} from "./ResPartnerController";
-export {PostController} from "./PostController";
+export {NewsController} from "./NewsController";
 export {LwFoodController} from "./LwFoodController";
