@@ -7,7 +7,9 @@ import {
     Param,
     Post,
     Put,
-    QueryParam, Req, Res,
+    QueryParam,
+    Req,
+    Res,
     UploadedFile,
     UseBefore
 } from "routing-controllers";
@@ -24,39 +26,9 @@ import {StatusCodes} from "http-status-codes";
 import {ErrorCode} from "../../enums/ErrorCode";
 import express from "express";
 import {UserInfoRequest} from "../../models/dto/UserInfoRequest";
+import {addPhoto} from "../../utils/S3Utils";
+import {S3Album} from "../../enums/S3Album";
 type File = Express.Multer.File;
-import AWS from "aws-sdk";
-const albumBucketName = "lose-weight-prod";
-const bucketRegion = "ap-southeast-1";
-
-const s3 = new AWS.S3({
-    accessKeyId: "AKIAUKEQQROLDUIJBTXS",
-    secretAccessKey: "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",
-    params: { Bucket: albumBucketName }
-});
-
-function addPhoto(albumName: string, file: File) {
-    const fileName = file.originalname;
-    const albumPhotosKey = encodeURIComponent(albumName) + "/";
-    // const base64data = new Buffer(file.buffer, "binary");
-    const fileContent = file.buffer.toString("binary");
-    const photoKey = albumPhotosKey + fileName;
-
-    const params = {
-        Bucket: albumBucketName,
-        Key: photoKey,
-        Body: file.buffer,
-        ACL: "public-read"
-    };
-
-    // Uploading files to the bucket
-    s3.upload(params, (err: Error, data: any) => {
-        if (err) {
-            throw err;
-        }
-        console.log(`File uploaded successfully. ${data.Location}`);
-    });
-}
 
 @JsonController("/users")
 @UseBefore(bodyParser.urlencoded({extended: true}))
@@ -86,7 +58,7 @@ export class ResPartnerController {
                 full_name: result.name,
                 email: result.email,
                 phone: result.phone,
-                avatar: "",
+                avatar: result.avatar,
                 address: result.address,
                 dob: result.dob,
                 gender: result.gender,
@@ -100,12 +72,11 @@ export class ResPartnerController {
     }
 
     @Put("/infor")
-    update(@CurrentUser({required: true}) user: ResPartner, @Body() form: UserInfoRequest, @UploadedFile("avatar") fileAvatar: File,
-           @Req() req: Express.Request) {
-        fileAvatar.originalname;
-        const fileOne = req.file;
-        addPhoto("test", fileAvatar);
-        return this._resPartnerService.changeInfoUser(form, user).then(function (result) {
+    update(@CurrentUser({required: true}) user: ResPartner, @Body() form: UserInfoRequest,
+           @UploadedFile("avatar") fileAvatar: File) {
+        logger.info(`File name avatar is ===>>>: ${fileAvatar.originalname}`);
+        const location = addPhoto(S3Album.AVATAR, fileAvatar);
+        return this._resPartnerService.changeInfoUser(form, user, location).then(function (result) {
             const jwt = Authentication.generateToken(result.phone);
             return {
                 id: result.id,
@@ -113,7 +84,7 @@ export class ResPartnerController {
                 full_name: result.name,
                 email: result.email,
                 phone: result.phone,
-                avatar: "",
+                avatar: location,
                 address: result.address,
                 dob: result.dob,
                 gender: result.gender,
@@ -144,8 +115,6 @@ export class ResPartnerController {
                 status: StatusCodes.NOT_FOUND,
             };
         }
-
-
         const validPassword = await argon2.verify(userLogin.password, password);
         if (!validPassword) {
             res.status(StatusCodes.UNAUTHORIZED);

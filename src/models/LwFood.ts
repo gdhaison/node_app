@@ -9,6 +9,9 @@ export class LwFood extends BaseModel {
     @Column({name: "name"})
     public name: string;
 
+    @Column({name: "image"})
+    public image: string;
+
     @Column({name: "calo"})
     public calo: number;
 

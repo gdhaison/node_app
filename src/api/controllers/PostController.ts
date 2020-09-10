@@ -3,7 +3,7 @@ import {Controller, Get} from "routing-controllers";
 // import {Authentication, Authorization} from "../../middlewares";
 
 @Controller()
-// @UseBefore(Authentication)
+// @UseBefore(Authentication)1
 // @UseAfter(Authorization)
 export class PostController {
     @Get("/posts")

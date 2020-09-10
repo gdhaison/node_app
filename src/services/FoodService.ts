@@ -23,7 +23,7 @@ export class LwFoodService extends BaseService<LwFood> {
         return food;
     }
 
-    public async create(food: Partial<FoodCreateRequest>): Promise<LwFood> {
+    public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {
         const payload: Partial<LwFood> = {};
         if (food.name) {
             payload.name = food.name;
@@ -31,8 +31,8 @@ export class LwFoodService extends BaseService<LwFood> {
         if (food.calo) {
             payload.calo = food.calo;
         }
-        if (food.image) {
-            // payload.image = food.image;
+        if (image) {
+            payload.image = image;
         }
         if (food.description) {
             payload.description = food.description;

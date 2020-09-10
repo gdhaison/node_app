@@ -1,8 +1,10 @@
 import {LwFoodService} from "../../services/FoodService";
-import {Body, Get, JsonController, QueryParam} from "routing-controllers";
+import {Body, Get, JsonController, QueryParam, UploadedFile} from "routing-controllers";
 import snakeCase from "snakecase-keys";
 import {Post} from "routing-controllers/decorator/Post";
 import {FoodCreateRequest} from "../../models/dto/FoodCreateRequest";
+import {addPhoto} from "../../utils/S3Utils";
+import {S3Album} from "../../enums/S3Album";
 
 @JsonController("/diets")
 export class LwFoodController {
@@ -12,8 +14,10 @@ export class LwFoodController {
     }
 
     @Post("/food")
-    public async addFood(@Body() food: FoodCreateRequest) {
-        return this._lwfoodService.create(food);
+    public async addFood(@Body() food: FoodCreateRequest,
+                         @UploadedFile("image") image: Express.Multer.File) {
+        const location = addPhoto(S3Album.DIET, image);
+        return this._lwfoodService.create(food, location);
     }
 
     @Get("/search")

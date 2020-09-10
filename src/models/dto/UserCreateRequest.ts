@@ -9,28 +9,23 @@ export class UserCreateRequest {
     name!: string;
 
     @IsString()
-    @Matches(RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/))
     password!: string;
 
-    @Matches(RegExp(/^([0-2][0-9]{3})-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1]) ([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])( ([\-+]([0-1][0-9]):00))?$/))
+    @Matches(RegExp(/^([0-2][0-9]{3})-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1])?$/))
     dob!: string;
 
     @IsString()
-    gender: string;
+    gender!: string;
 
-    @IsPhoneNumber("VN")
     phone!: string;
 
     @IsString()
     address!: string;
 
-    @IsNumber()
     height!: number;
 
-    @IsNumber()
     weight!: number;
 
-    @JsonProperty({name: "target_weight"})
     target_weight!: number;
 
     @IsString()

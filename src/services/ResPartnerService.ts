@@ -33,7 +33,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.findOne({id});
     }
 
-    public async changeInfoUser(userInfo: UserInfoRequest, user: ResPartner): Promise<ResPartner> {
+    public async changeInfoUser(userInfo: UserInfoRequest, user: ResPartner, avatarLocation: string): Promise<ResPartner> {
         if (userInfo.name) {
             user.name = userInfo.name;
         }
@@ -43,8 +43,10 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (userInfo.address) {
             user.address = userInfo.address;
         }
+        if (userInfo.address) {
+            user.avatar = avatarLocation;
+        }
         user.writeDate = new Date();
-        user.avatar = "";
         return this._resPartnerRepository.save(user);
     }
 
