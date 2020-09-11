@@ -18,6 +18,9 @@ import {RatingRequest} from "../../models/dto/RatingRequest";
 import express from "express";
 import {ResPartner} from "../../models";
 import {StatusCodes} from "http-status-codes";
+import {ErrorCode} from "../../enums/ErrorCode";
+import {IsNumber, isNumberString, IsString} from "class-validator";
+
 
 
 @JsonController("/diets")
