@@ -1,4 +1,4 @@
-import {Column, Entity, OneToOne} from "typeorm";
+import {Column, Entity, ManyToOne} from "typeorm";
 import {BaseModel} from "./BaseModel";
 import {LwNews} from "./LwNews";
 
@@ -31,7 +31,7 @@ export class LwNewsTrace extends BaseModel {
     @Column({name: "write_date"})
     public writeDate: Date;
 
-    @OneToOne(type => LwNews, lwNews => lwNews.id)
+    @ManyToOne(type => LwNews, lwNews => lwNews.lwNewsTraces)
     lwNews: LwNews
 
 }
