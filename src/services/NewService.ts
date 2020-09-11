@@ -29,4 +29,9 @@ export class LwNewService extends BaseService<LwNews> {
             return response;
         });
     }
+
+    public getNews () {
+        let response: any;
+        return this.lwNewsRepository.getNews();
+    }
 }

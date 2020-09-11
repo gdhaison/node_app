@@ -72,6 +72,7 @@
     "strip-ansi": "^6.0.0",
     "typedi": "^0.8.0",
     "typeorm": "^0.2.25",
+    "typeorm-pagination": "^2.0.1",
     "typeorm-typedi-extensions": "^0.2.3",
     "typescript-json-object-mapper": "^1.4.5",
     "winston": "^3.2.1"
