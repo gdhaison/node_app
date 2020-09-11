@@ -4,7 +4,6 @@ import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {ResPartnerRepository} from "../repositories/ResPartnerRepository";
 import {UserCreateRequest} from "../models/dto/UserCreateRequest";
-import {DateUtils} from "../utils/DateUtils";
 import argon2 from "argon2";
 import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
@@ -97,6 +96,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         }
         payload.createDate = new Date();
         payload.writeDate = new Date();
+
         return this._resPartnerRepository.save(payload);
     }
 

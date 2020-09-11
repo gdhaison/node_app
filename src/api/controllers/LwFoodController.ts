@@ -1,15 +1,24 @@
 import {LwFoodService} from "../../services/FoodService";
-import {Body, Get, JsonController, QueryParam, UploadedFile} from "routing-controllers";
-import snakeCase from "snakecase-keys";
-import {Post} from "routing-controllers/decorator/Post";
+import {
+    Body,
+    CurrentUser,
+    Get,
+    JsonController,
+    Param,
+    Post,
+    QueryParam,
+    Req,
+    Res,
+    UploadedFile
+} from "routing-controllers";
 import {FoodCreateRequest} from "../../models/dto/FoodCreateRequest";
 import {addPhoto} from "../../utils/S3Utils";
 import {S3Album} from "../../enums/S3Album";
 import {RatingRequest} from "../../models/dto/RatingRequest";
 import express from "express";
-import {Req} from "routing-controllers/decorator/Req";
-import {Res} from "routing-controllers/decorator/Res";
+import {ResPartner} from "../../models";
 import {StatusCodes} from "http-status-codes";
+
 
 @JsonController("/diets")
 export class LwFoodController {
@@ -26,35 +35,33 @@ export class LwFoodController {
     }
 
     @Get("/search")
-    getAll(@QueryParam("search_text") search_text: string, @QueryParam("category") category: string) {
+    public async getAll(@QueryParam("search_text") search_text: string, @QueryParam("category") category: string) {
         return this._lwfoodService.search(search_text, category);
     }
 
     @Get("/:food_id")
-    getFoodById(@QueryParam("food_id") foodId: number) {
-        return this._lwfoodService.getById(foodId).then(function (res) {
-            return snakeCase({
-                id: res.id,
-                image: "http://image.com/",
-                name: res.name,
-                calo: res.calo,
-                heart: res.totalLike,
-                star: 4,
-                description: res.description,
-            });
-        });
+    public async getFoodById(@Param("food_id") foodId: number, @Req() req: express.Request, @Res() res: express.Response) {
+        return this._lwfoodService.getById(foodId);
     }
 
     @Post("/like")
-    public async like(@Body() food: FoodCreateRequest,
-                         @UploadedFile("image") image: Express.Multer.File) {
-        const location = addPhoto(S3Album.DIET, image);
-        return this._lwfoodService.create(food, location);
+    public async like(@CurrentUser({required: true}) user: ResPartner, @Body() data: any,
+                      @Req() req: express.Request, @Res() res: express.Response) {
+        res.status(StatusCodes.NO_CONTENT);
+        return this._lwfoodService.like(data.food_id, user.id, 1);
     }
 
     @Post("/rating")
-    public async rating(@Body() body: RatingRequest, @Req() req: express.Request, @Res() res: express.Response) {
+    public async rating(@CurrentUser({required: true}) user: ResPartner, @Body() body: RatingRequest,
+                        @Req() req: express.Request, @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
-        return this._lwfoodService.rating(body);
+        return this._lwfoodService.rating(body, user.id);
+    }
+
+    @Post("/change-food")
+    public async changeFood(@CurrentUser({required: true}) user: ResPartner, @Body() data: any,
+                        @Req() req: express.Request, @Res() res: express.Response) {
+        res.status(StatusCodes.NO_CONTENT);
+        return this._lwfoodService.changeFood(data);
     }
 }

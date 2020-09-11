@@ -1,9 +1,11 @@
-import {EntityManager, EntityRepository, Repository, InsertResult} from "typeorm";
+import {EntityManager, EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
 import {LwFood} from "../models/LwFood";
 import {InjectManager} from "typeorm-typedi-extensions";
 import {LwFoodStar} from "../models/LwFoodStar";
 import {RatingRequest} from "../models/dto/RatingRequest";
+import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
+import {ErrorCode} from "../enums/ErrorCode";
 
 @Service()
 @EntityRepository(LwFood)
@@ -15,7 +17,7 @@ export class LwFoodRepository extends Repository<LwFood> {
 
 
     findByNameAndCategory(search_text: string, category: string): Promise<LwFood[] | undefined> {
-        let result = this.createQueryBuilder("lwFood")/*.leftJoin("lwFood.category", "lwFoodCategory")*/
+        const result = this.createQueryBuilder("lwFood")/*.leftJoin("lwFood.category", "lwFoodCategory")*/
             .where("lwFood.name like '%" + search_text + "%'");
         // if (category) {
         //     result = result.andWhere(
@@ -25,12 +27,57 @@ export class LwFoodRepository extends Repository<LwFood> {
         return result.getMany();
     };
 
-    rating(rating: RatingRequest): Promise<InsertResult> {
-        return this.entityManager.insert(LwFoodStar, {
-            foodId: rating.food_id,
-            resPartnerId: 1,
-            star: rating.star,
-            likeFlag: 1
-        });
+    async getById(id: number): Promise<any> {
+        const data = await this.entityManager.query("SELECT lf.id, lf.image, lf.name, lf.calo, lf.total_like as heart, " +
+            "lfs.star, lf.description, lfs.star FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = $1 ", [id]);
+        if (Array.isArray(data) && data.length)
+            return data[0];
+        throw new FoodNotFoundError(ErrorCode.FOOD_NOT_FOUND);
+    }
+
+    async rating(rating: RatingRequest, resPartnerId: number): Promise<any> {
+        const result = await this.createQueryBuilder()
+            .select("lw_food_star")
+            .from(LwFoodStar, "lw_food_star")
+            .where("lw_food_star.foodId = :food_id", {food_id: rating.food_id})
+            .andWhere("lw_food_star.resPartnerId = :partner_id", {partner_id: resPartnerId})
+            .getOne();
+        if (result) {
+            return await this.createQueryBuilder()
+                .update(LwFoodStar)
+                .set({star: rating.star})
+                .where("foodId = :food_id", {food_id: rating.food_id})
+                .andWhere("resPartnerId = :partner_id", {partner_id: resPartnerId})
+                .execute();
+        } else {
+            return this.entityManager.save(LwFoodStar, {
+                foodId: rating.food_id,
+                resPartnerId: resPartnerId,
+                star: rating.star
+            });
+        }
+    }
+
+    async like(foodId: number, resPartnerId: number, likeFlag: number): Promise<any> {
+        const result = await this.createQueryBuilder()
+            .select("lw_food_star")
+            .from(LwFoodStar, "lw_food_star")
+            .where("lw_food_star.foodId = :food_id", {food_id: foodId})
+            .andWhere("lw_food_star.resPartnerId = :partner_id", {partner_id: resPartnerId})
+            .getOne();
+        if (result) {
+            return await this.createQueryBuilder()
+                .update(LwFoodStar)
+                .set({likeFlag: likeFlag})
+                .where("foodId = :food_id", {food_id: foodId})
+                .andWhere("resPartnerId = :partner_id", {partner_id: resPartnerId})
+                .execute();
+        } else {
+            return this.entityManager.save(LwFoodStar, {
+                foodId: foodId,
+                resPartnerId: resPartnerId,
+                likeFlag: likeFlag
+            });
+        }
     }
 }

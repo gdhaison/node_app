@@ -3,10 +3,9 @@ import {LwFood} from "../models/LwFood";
 import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwFoodRepository} from "../repositories/LwFoodRepository";
-import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {FoodCreateRequest} from "../models/dto/FoodCreateRequest";
 import {RatingRequest} from "../models/dto/RatingRequest";
-import { getManager } from "typeorm"; const entityManager = getManager();
+import logger from "../lib/logger/logger";
 
 @Service()
 export class LwFoodService extends BaseService<LwFood> {
@@ -18,15 +17,23 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwfoodRepository.findByNameAndCategory(name, category);
     }
 
-    public getById(id: number): Promise<LwFood> {
-        const food = this.lwfoodRepository.findOne(id);
-        if (!food)
-            throw new FoodNotFoundError();
-        return food;
+    public async getById(id: number): Promise<any> {
+        return this.lwfoodRepository.getById(id);
     }
 
-    public async rating(rating: RatingRequest): Promise<any> {
-        return this.lwfoodRepository.rating(rating);
+    public async rating(rating: RatingRequest, resPartnerId: number): Promise<any> {
+        return this.lwfoodRepository.rating(rating, resPartnerId);
+    }
+
+    public async like(foodId: number, resPartnerId: number, likeFlag: number) {
+        return this.lwfoodRepository.like(foodId, resPartnerId, likeFlag);
+    }
+
+    public async changeFood(data: any) {
+        if (Array.isArray(data) && data.length)
+            logger.info(data);
+
+        // return this.lwfoodRepository.like(foodId, resPartnerId, likeFlag);
     }
 
     public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {
