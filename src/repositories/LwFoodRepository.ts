@@ -4,6 +4,8 @@ import {LwFood} from "../models/LwFood";
 import {InjectManager} from "typeorm-typedi-extensions";
 import {LwFoodStar} from "../models/LwFoodStar";
 import {RatingRequest} from "../models/dto/RatingRequest";
+import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
+import {ErrorCode} from "../enums/ErrorCode";
 
 @Service()
 @EntityRepository(LwFood)
