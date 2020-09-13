@@ -1,6 +1,5 @@
 import {LwFoodService} from "../../services/FoodService";
 import {Body, Get, JsonController, QueryParam, UploadedFile} from "routing-controllers";
-import snakeCase from "snakecase-keys";
 import {Post} from "routing-controllers/decorator/Post";
 import {FoodCreateRequest} from "../../models/dto/FoodCreateRequest";
 import {addPhoto} from "../../utils/S3Utils";
@@ -9,7 +8,12 @@ import {RatingRequest} from "../../models/dto/RatingRequest";
 import express from "express";
 import {Req} from "routing-controllers/decorator/Req";
 import {Res} from "routing-controllers/decorator/Res";
+import {Param} from "routing-controllers/decorator/Param";
+import logger from "../../lib/logger/logger";
 import {StatusCodes} from "http-status-codes";
+import {ErrorCode} from "../../enums/ErrorCode";
+import {IsNumber, isNumberString, IsString} from "class-validator";
+
 
 @JsonController("/diets")
 export class LwFoodController {
@@ -26,35 +30,24 @@ export class LwFoodController {
     }
 
     @Get("/search")
-    getAll(@QueryParam("search_text") search_text: string, @QueryParam("category") category: string) {
+    public async getAll(@QueryParam("search_text") search_text: string, @QueryParam("category") category: string) {
         return this._lwfoodService.search(search_text, category);
     }
 
     @Get("/:food_id")
-    getFoodById(@QueryParam("food_id") foodId: number) {
-        return this._lwfoodService.getById(foodId).then(function (res) {
-            return snakeCase({
-                id: res.id,
-                image: "http://image.com/",
-                name: res.name,
-                calo: res.calo,
-                heart: res.totalLike,
-                star: 4,
-                description: res.description,
-            });
-        });
+    public async getFoodById(@Param("food_id") foodId: number, @Req() req: express.Request, @Res() res: express.Response) {
+        return this._lwfoodService.getById(foodId);
     }
 
     @Post("/like")
     public async like(@Body() food: FoodCreateRequest,
-                         @UploadedFile("image") image: Express.Multer.File) {
+                      @UploadedFile("image") image: Express.Multer.File) {
         const location = addPhoto(S3Album.DIET, image);
         return this._lwfoodService.create(food, location);
     }
 
     @Post("/rating")
     public async rating(@Body() body: RatingRequest, @Req() req: express.Request, @Res() res: express.Response) {
-        res.status(StatusCodes.NO_CONTENT);
         return this._lwfoodService.rating(body);
     }
 }
