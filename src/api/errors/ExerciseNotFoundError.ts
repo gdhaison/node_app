@@ -1,7 +1,7 @@
-export class FoodNotFoundError extends Error {
+export class ExerciseNotFoundError extends Error {
     code: string;
     constructor(code: string) {
-        super("Food not found!");
+        super("Exercise not found!");
         this.code = code;
     }
 }
