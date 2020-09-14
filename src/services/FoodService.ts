@@ -59,4 +59,9 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwfoodRepository.save(payload);
     }
 
+    public getFoodByDate(date: string, category: string, user_id: number, page: number, limit: number):
+        Promise<any> {
+        return this.lwfoodRepository.findFoodByDateCategory(date, category, user_id, page, limit);
+    }
+
 }

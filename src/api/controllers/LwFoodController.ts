@@ -39,6 +39,18 @@ export class LwFoodController {
         return this._lwfoodService.search(search_text, category);
     }
 
+    @Get("/foods")
+    getFoodByDate(
+        @QueryParam("date") date: string,
+        @QueryParam("category") category: string,
+        @QueryParam("page") page: number,
+        @QueryParam("limit") limit: number,
+        @CurrentUser({required: true}) user: ResPartner,
+    ): Promise<any> {
+        const user_id = user.id;
+        return this._lwfoodService.getFoodByDate(date, category, user_id, page, limit);
+    }
+
     @Get("/:food_id")
     public async getFoodById(@Param("food_id") foodId: number, @Req() req: express.Request, @Res() res: express.Response) {
         return this._lwfoodService.getById(foodId);
