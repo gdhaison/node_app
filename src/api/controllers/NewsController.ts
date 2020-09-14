@@ -16,12 +16,8 @@ export class NewsController {
     }
 
     @Get()
-    public async getNews() {
-        const news = await this.repo.createQueryBuilder("lwNews")
-            .leftJoinAndSelect("lwNews.lwNewsTraces", "lwNewsTrace")
-            .getMany();
-            // .paginate();
-        return news;
+    getNews(@QueryParam("page") page: number, @QueryParam("limit") limit: number) {
+        return this._lwNewService.getNews(page, limit);
     }
 }
 
