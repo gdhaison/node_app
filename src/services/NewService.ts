@@ -30,8 +30,7 @@ export class LwNewService extends BaseService<LwNews> {
         });
     }
 
-    public getNews () {
-        let response: any;
-        return this.lwNewsRepository.getNews();
+    public getNews (page: number, limit: number) {
+        return this.lwNewsRepository.getNews(page, limit);
     }
 }
