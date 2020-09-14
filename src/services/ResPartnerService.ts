@@ -9,6 +9,10 @@ import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
 import {UserExitsError} from "../api/errors/UserExitsError";
 import {UserInfoRequest} from "../models/dto/UserInfoRequest";
+import {UserChangePasswordRequest} from "../models/dto/UserChangePasswordRequest";
+import {WrongPasswordErrors} from "../api/errors/WrongPasswordErros";
+import {StatusCodes} from "http-status-codes";
+
 
 @Service()
 export class ResPartnerService extends BaseService<ResPartner> {
@@ -100,4 +104,20 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.save(payload);
     }
 
+    public async changePassword(userInfo: UserChangePasswordRequest, user: ResPartner): Promise<ResPartner> {
+        const {old_pass, new_pass} = userInfo;
+        const oldPassVerify = await argon2.verify(user.password, old_pass);
+
+        if (!oldPassVerify) {
+            throw new WrongPasswordErrors(StatusCodes.UNAUTHORIZED);
+        }
+
+        const salt = randomBytes(32);
+        const password= await argon2.hash(new_pass, {salt});
+        if (userInfo.new_pass) {
+            user.password = password;
+        }
+        user.writeDate = new Date();
+        return this._resPartnerRepository.save(user);
+    }
 }
