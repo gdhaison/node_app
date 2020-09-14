@@ -20,8 +20,22 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwfoodRepository.getById(id);
     }
 
-    public async rating(rating: RatingRequest): Promise<any> {
-        return this.lwfoodRepository.rating(rating);
+    public async rating(rating: RatingRequest, resPartnerId: number): Promise<any> {
+        return this.lwfoodRepository.rating(rating, resPartnerId);
+    }
+
+    public async like(foodId: number, resPartnerId: number, likeFlag: number) {
+        return this.lwfoodRepository.like(foodId, resPartnerId, likeFlag);
+    }
+
+    public async changeFood(data: any) {
+        const foodCategoryArr: { foodId: number; categoryId: any }[] = [];
+        const foodIds = data.food_ids;
+        if (Array.isArray(foodIds) && foodIds.length)
+            foodIds.forEach((item: number) => {
+                foodCategoryArr.push({foodId: item, categoryId: data.category_id});
+            });
+        return this.lwfoodRepository.changeFood(foodCategoryArr);
     }
 
     public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {
@@ -45,6 +59,11 @@ export class LwFoodService extends BaseService<LwFood> {
         payload.prepareTime = 0;
         payload.cookingTime = 0;
         return this.lwfoodRepository.save(payload);
+    }
+
+    public getFoodByDate(date: string, category: string, user_id: number, page: number, limit: number):
+        Promise<any> {
+        return this.lwfoodRepository.findFoodByDateCategory(date, category, user_id, page, limit);
     }
 
 }

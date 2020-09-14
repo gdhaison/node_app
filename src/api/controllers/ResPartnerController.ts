@@ -28,6 +28,7 @@ import express from "express";
 import {UserInfoRequest} from "../../models/dto/UserInfoRequest";
 import {addPhoto} from "../../utils/S3Utils";
 import {S3Album} from "../../enums/S3Album";
+import {UserChangePasswordRequest} from "../../models/dto/UserChangePasswordRequest";
 type File = Express.Multer.File;
 
 @JsonController("/users")
@@ -143,5 +144,11 @@ export class ResPartnerController {
             physical: `${userLogin.physical}`,
             muscle: `${userLogin.muscle}`,
         };
+    }
+
+    @Put("/change-password")
+    async changePassword(@CurrentUser({required: true}) user: ResPartner,@Res() res: express.Response, @Body() form: UserChangePasswordRequest) {
+        res.status(StatusCodes.NO_CONTENT);
+        return await this._resPartnerService.changePassword(form, user);
     }
 }

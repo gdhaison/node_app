@@ -1,20 +1,9 @@
-import {Column, Entity, Unique, PrimaryGeneratedColumn, ManyToOne, OneToMany} from "typeorm";
-import {PrimaryColumn, ValueTransformer} from "typeorm";
-import {IsInt} from "class-validator";
-
-const bigIntTransformer: ValueTransformer = {
-    to: (entityValue: bigint) => entityValue,
-    from: (databaseValue: string) => Number(databaseValue),
-};
+import {Column, Entity} from "typeorm";
+import {PrimaryColumn} from "typeorm";
 
 @Entity({name: "lw_food_star"})
 export class LwFoodStar {
-    @IsInt()
-    @PrimaryGeneratedColumn()
-    @PrimaryColumn({type: "bigint", transformer: [bigIntTransformer]})
-    id!: number;
-
-    @Column({name: "food_id"})
+    @PrimaryColumn()
     public foodId: number;
 
     @Column({name: "res_partner_id"})

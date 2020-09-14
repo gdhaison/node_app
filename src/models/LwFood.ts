@@ -1,6 +1,8 @@
 import {Column, Entity, Unique, PrimaryGeneratedColumn, ManyToOne, OneToMany} from "typeorm";
 import {BaseModel} from "./BaseModel";
 import {LwFoodLwMenuRel} from "./LwFoodLwMenuRel";
+import {LwCategory} from "./LwCategory";
+import {LwFoodCategory} from "./LwFoodCategory";
 
 @Entity({name: "lw_food"})
 export class LwFood extends BaseModel {

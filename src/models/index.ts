@@ -6,3 +6,4 @@ export {LwDiet} from "./LwDiet";
 export {LwFoodLwMenuRel} from "./LwFoodLwMenuRel";
 export {LwMenu} from "./LwMenu";
 export {LwWeek} from "./LwWeek";
+export {LwCategory} from "./LwCategory";
