@@ -5,7 +5,7 @@ export class LwFoodCategory {
     @PrimaryColumn()
     public foodId: number;
 
-    @Column({name: "category_id"})
-    public categoryId: number;
+    @Column({name: "category_code"})
+    public categoryCode: string;
 
 }

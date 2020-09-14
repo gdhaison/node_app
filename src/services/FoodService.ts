@@ -30,11 +30,11 @@ export class LwFoodService extends BaseService<LwFood> {
     }
 
     public async changeFood(data: any) {
-        const foodCategoryArr: { foodId: number; categoryId: any }[] = [];
+        const foodCategoryArr: { foodId: number; categoryCode: string }[] = [];
         const foodIds = data.food_ids;
         if (Array.isArray(foodIds) && foodIds.length)
             foodIds.forEach((item: number) => {
-                foodCategoryArr.push({foodId: item, categoryId: data.category_id});
+                foodCategoryArr.push({foodId: item, categoryCode: data.category_id});
             });
         return this.lwfoodRepository.changeFood(foodCategoryArr);
     }
