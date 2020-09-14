@@ -5,7 +5,6 @@ import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwFoodRepository} from "../repositories/LwFoodRepository";
 import {FoodCreateRequest} from "../models/dto/FoodCreateRequest";
 import {RatingRequest} from "../models/dto/RatingRequest";
-import logger from "../lib/logger/logger";
 
 @Service()
 export class LwFoodService extends BaseService<LwFood> {
@@ -30,10 +29,13 @@ export class LwFoodService extends BaseService<LwFood> {
     }
 
     public async changeFood(data: any) {
-        if (Array.isArray(data) && data.length)
-            logger.info(data);
-
-        // return this.lwfoodRepository.like(foodId, resPartnerId, likeFlag);
+        const foodCategoryArr: { foodId: number; categoryId: any }[] = [];
+        const foodIds = data.food_ids;
+        if (Array.isArray(foodIds) && foodIds.length)
+            foodIds.forEach((item: number) => {
+                foodCategoryArr.push({foodId: item, categoryId: data.category_id});
+            });
+        return this.lwfoodRepository.changeFood(foodCategoryArr);
     }
 
     public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {

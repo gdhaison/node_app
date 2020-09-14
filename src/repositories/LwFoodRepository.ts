@@ -7,6 +7,7 @@ import {RatingRequest} from "../models/dto/RatingRequest";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
 import {types} from "node-sass";
+import {LwFoodCategory} from "../models";
 
 @Service()
 @EntityRepository(LwFood)
@@ -80,6 +81,15 @@ export class LwFoodRepository extends Repository<LwFood> {
                 likeFlag: likeFlag
             });
         }
+    }
+
+    async changeFood(data: { foodId: number; categoryId: any }[]): Promise<any> {
+        return await this.createQueryBuilder()
+            .createQueryBuilder()
+            .insert()
+            .into(LwFoodCategory)
+            .values(data)
+            .execute();
     }
 
 
