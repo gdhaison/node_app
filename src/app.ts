@@ -6,7 +6,6 @@ import {getConnection} from "typeorm";
 import {Container} from "typedi";
 import {createExpressServer, useContainer} from "routing-controllers";
 import {Authentication} from "./auth/Authenticate";
-import {pagination} from "typeorm-pagination";
 
 useContainer(Container);
 
@@ -23,7 +22,6 @@ async function startApplication() {
             authorizationChecker: authorizationChecker(connection),
             currentUserChecker: Authentication.currentUserChecker,
         });
-        app.use(pagination);
         app.listen(PORT);
     } catch (err) {
         console.error(err);
