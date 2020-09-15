@@ -11,7 +11,7 @@ export class LwNewsRepository extends Repository<LwNews> {
         return result.getOne();
     }
 
-    async getNews(page: number, limit: number) {
+    async getNews(page: number, limit: number, userId: number) {
         const skippedItems = (page - 1) * limit;
         const data = await this.query(`select ln2.id ,
              ln2.image_url_list,
@@ -24,8 +24,13 @@ export class LwNewsRepository extends Repository<LwNews> {
              from lw_news_trace lnt 
              where lnt.news_id  = ln2.id
               and lnt.like_flg = true) as total_views,
+              (select count(id) 
+             from lw_news_trace lnt 
+             where lnt.news_id  = ln2.id
+              and lnt.partner_id = ${userId}) as like_flag,
              ln2.description 
              from lw_news ln2
+             order by id asc
         limit ${limit} offset ${skippedItems} `);
         let count = [];
         count = await this.query("select count(*) as counter from lw_news");
