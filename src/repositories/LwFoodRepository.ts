@@ -6,7 +6,6 @@ import {LwFoodStar} from "../models/LwFoodStar";
 import {RatingRequest} from "../models/dto/RatingRequest";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
-import {types} from "node-sass";
 import {LwFoodCategory} from "../models";
 import {PageNotFound} from "../api/errors/PageNotFound";
 
@@ -118,7 +117,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         }
     }
 
-    async changeFood(data: { foodId: number; categoryId: any }[]): Promise<any> {
+    async changeFood(data: { foodId: number; categoryCode: string }[]): Promise<any> {
         return await this.createQueryBuilder()
             .createQueryBuilder()
             .insert()
