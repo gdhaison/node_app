@@ -1,6 +1,6 @@
 import {BaseModel} from "./BaseModel";
-import {Entity} from "typeorm";
-import {Column} from "typeorm";
+import {} from "typeorm";
+import {Entity, Column} from "typeorm";
 
 @Entity({name: "lw_exercise"})
 export class LwExercise extends BaseModel {

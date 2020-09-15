@@ -1,9 +1,11 @@
-import {JsonController, Get, QueryParam} from "routing-controllers";
+import {Get, JsonController, QueryParam} from "routing-controllers";
 import express from "express";
 import {Param} from "routing-controllers/decorator/Param";
 import {Req} from "routing-controllers/decorator/Req";
 import {Res} from "routing-controllers/decorator/Res";
 import {ExerciseService} from "../../services/ExerciseService";
+import {ResPartner} from "../../models";
+import {CurrentUser} from "routing-controllers/decorator/CurrentUser";
 
 @JsonController("/exercise-regimes")
 export class ExerciseController {
@@ -14,14 +16,12 @@ export class ExerciseController {
     }
 
     @Get()
-    public async search(@QueryParam("day") day: string,
+    public async search(@CurrentUser({required: true}) user: ResPartner,
+                        @QueryParam("day") day: string,
                         @QueryParam("page") page: number,
                         @QueryParam("page_size") pageSize: number,
                         @Req() req: express.Request, @Res() res: express.Response) {
-        return this._exerciseService.paginate({
-            page: page,
-            limit: pageSize
-        });
+        return this._exerciseService.paginate({page: page, limit: pageSize}, user.id);
     }
 
     @Get("/:exercise_id")
