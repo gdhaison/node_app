@@ -31,7 +31,7 @@ export class LwFoodRepository extends Repository<LwFood> {
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc " +
             "on lfc.food_id = lf.id inner join lw_category lc on lc.id = lfc.category_id ";
         const condition = "WHERE lf.name LIKE '%"+ search_text +"%' and lc.code = '"+ category +"'" ;
-        const count = await this.entityManager.query("SELECT COUNT(*) " + query + condition);
+        const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
         let to = 0;
@@ -39,7 +39,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         if (total > page*limit) {
             to = page*limit;
         }
-        else if ( page > total_page) {
+        else if ( page > total_page && total_page != 0) {
             throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
         }
         else{
@@ -137,7 +137,7 @@ export class LwFoodRepository extends Repository<LwFood> {
 
         const skippedItems = (page - 1) * limit;
         const select_query =
-            "SELECT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
+            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
             "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" AND lfs.like_flag = 1 " +
             "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" " +
             "AND lfs.food_id = lf.id) AS star ";
@@ -145,8 +145,8 @@ export class LwFoodRepository extends Repository<LwFood> {
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id INNER JOIN lw_food_lw_menu_rel lflmr " +
             "ON lflmr.lw_food_id = lf.id INNER JOIN lw_diet ld ON ld.lw_menu_id = lflmr.lw_menu_id INNER JOIN lw_week " +
             "lw ON lw.id = ld.lw_week_id INNER JOIN lw_menu lm ON lm.id = ld.lw_menu_id WHERE " +
-            "lw.day_of_week = '" + date +"' AND lfs.res_partner_id = " + user_id + " AND lm.code = '" + menu + "'";
-        const count = await this.entityManager.query("SELECT COUNT(*)" + query);
+            "lw.day_of_week = '" + date +"' AND ld.partner_id = " + user_id + " AND lm.code = '" + menu + "'";
+        const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id))" + query);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
 
@@ -155,7 +155,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         if (total > page*limit) {
             to = page*limit;
         }
-        else if ( page > total_page) {
+        else if ( page > total_page && total_page != 0) {
             throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
         }
         else{
