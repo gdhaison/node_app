@@ -1,13 +1,15 @@
-import {Controller, Get} from "routing-controllers";
+import {Get, JsonController, Param} from "routing-controllers";
+import {LwNewService} from "../../services/NewService";
 
-// import {Authentication, Authorization} from "../../middlewares";
-
-@Controller()
-// @UseBefore(Authentication)1
-// @UseAfter(Authorization)
+@JsonController("/news")
 export class NewsController {
-    @Get("/posts")
-    getAll() {
-        return "This action returns all posts";
+    constructor(
+        private _lwNewService: LwNewService
+    ) {};
+
+    @Get("/:news_id")
+    public async getNewsDetail(@Param("news_id") newsId: number) {
+        return this._lwNewService.getNewsDetail(newsId);
     }
 }
+
