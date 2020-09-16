@@ -21,6 +21,22 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         throw new ExerciseNotFoundError(ErrorCode.FOOD_NOT_FOUND);
     }
 
+    async putExercise(exerciseId: number, userId: number): Promise<any> {
+        const lwExPartnerWeekId = await this.entityManager.query("SELECT lepw.id from lw_exercise_partner lep INNER JOIN lw_ex_partner_week lepw ON lepw.lw_exercise_partner_id = lep.id where lep.exercise_id = " + exerciseId + "AND lep.partner_id = " + userId);
+        const lwExPartnerId = parseInt(lwExPartnerWeekId[0]["id"]);
+
+        return this.entityManager.query("UPDATE lw_ex_partner_week SET finish_flag = true where id = " + lwExPartnerId);
+    }
+
+    async checkUserExist(userId: number): Promise<number> {
+        const userCount = await this.entityManager.query("SELECT count(res_partner.id) from res_partner where id = " + userId);
+        return parseInt(userCount[0]["count"]);
+    }
+
+    async checkExerciseExist(exerciseId: number): Promise<number> {
+        const exCount = await this.entityManager.query("SELECT count(lw_exercise.id) from lw_exercise where id = " + exerciseId);
+        return parseInt(exCount[0]["count"]);
+    }
 
     async paginate(options: IPaginationOptions, partnerId: number): Promise<Pagination<LwExercise>> {
         const data = await this.entityManager.query("select lw.id as week_id, lep.exercise_id as exercise_id, lepw.finish_flag as finish_flag from lw_week lw \n" +
