@@ -30,6 +30,7 @@ export class LwNewsRepository extends Repository<LwNews> {
               and lnt.partner_id = ${userId}) as like_flag,
              ln2.description 
              from lw_news ln2
+             group by id
              order by id asc
         limit ${limit} offset ${skippedItems} `);
         let count = [];
