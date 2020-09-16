@@ -1,4 +1,4 @@
-import {Column, Entity, OneToOne} from "typeorm";
+import {Column, Entity, OneToMany} from "typeorm";
 import {BaseModel} from "./BaseModel";
 import {LwNewsTrace} from "./LwNewsTrace";
 
@@ -31,7 +31,7 @@ export class LwNews extends BaseModel {
     @Column({name: "image_url_list"})
     public imageUrlList: string;
 
-    @OneToOne(type => LwNewsTrace, lwNews => lwNews.newsId)
-    lwNews: LwNews
+    @OneToMany(type => LwNewsTrace, lwNewsTrace => lwNewsTrace.newsId)
+    lwNewsTraces: LwNewsTrace[]
 
 }
