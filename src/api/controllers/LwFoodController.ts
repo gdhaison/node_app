@@ -62,8 +62,8 @@ export class LwFoodController {
     }
 
     @Get("/:food_id")
-    public async getFoodById(@Param("food_id") foodId: number, @Req() req: express.Request, @Res() res: express.Response) {
-        return this._lwfoodService.getById(foodId);
+    public async getFoodById(@CurrentUser({required: true}) user: ResPartner, @Param("food_id") foodId: number, @Req() req: express.Request, @Res() res: express.Response) {
+        return this._lwfoodService.getById(foodId, user.id);
     }
 
     @Post("/like")
@@ -74,7 +74,7 @@ export class LwFoodController {
     }
 
     @Post("/rating")
-    public async rating(@CurrentUser({required: true}) user: ResPartner, @Body() body: RatingRequest,
+    public async rating(@CurrentUser({required: true, }) user: ResPartner, @Body() body: RatingRequest,
                         @Req() req: express.Request, @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
         return this._lwfoodService.rating(body, user.id);

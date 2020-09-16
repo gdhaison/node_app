@@ -21,6 +21,7 @@ async function startApplication() {
             middlewares: [`${__dirname}/middlewares/*{.js,.ts}`],
             authorizationChecker: authorizationChecker(connection),
             currentUserChecker: Authentication.currentUserChecker,
+            defaultErrorHandler: false,
         });
         app.listen(PORT);
     } catch (err) {

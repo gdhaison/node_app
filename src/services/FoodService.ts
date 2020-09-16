@@ -17,8 +17,8 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwfoodRepository.findByNameAndCategory(name, category, page, limit);
     }
 
-    public async getById(id: number): Promise<any> {
-        return this.lwfoodRepository.getById(id);
+    public async getById(id: number, partnerId: number): Promise<any> {
+        return this.lwfoodRepository.getById(id, partnerId);
     }
 
     public async rating(rating: RatingRequest, resPartnerId: number): Promise<any> {
