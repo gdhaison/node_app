@@ -23,7 +23,7 @@ export class LwNewsRepository extends Repository<LwNews> {
              (select count(id) 
              from lw_news_trace lnt 
              where lnt.news_id  = ln2.id
-              and lnt.like_flg = true) as total_views,
+              and lnt.read_flg = true) as total_views,
               (select count(id) 
              from lw_news_trace lnt 
              where lnt.news_id  = ln2.id
