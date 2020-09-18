@@ -178,4 +178,46 @@ export class LwFoodRepository extends Repository<LwFood> {
         return data;
     }
 
+    public async findFoodByCatefory(category: string, page: number, limit: number): Promise<any> {
+        const skippedItems = (page - 1) * limit;
+        const select_query =
+            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description," +
+            "(SELECT COUNT(1) FROM lw_food_star lfs where lfs.like_flag = 1 " +
+            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE " +
+            "lfs.food_id = lf.id) AS star ";
+        const query =
+            "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc " +
+            "on lfc.food_id = lf.id inner join lw_category lc on lc.id = lfc.category_id ";
+        const condition = "WHERE lc.code = '" + category + "'";
+
+        const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
+        const total = parseInt(count[0]["count"]);
+        const total_page = Math.ceil(total/limit);
+        let to = 0;
+        let nextPage = true;
+        if (total > page*limit) {
+            to = page*limit;
+        }
+        else if ( page > total_page && total_page != 0) {
+            throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
+        }
+        else{
+            to = total;
+            nextPage = false;
+        }
+
+        const result = await this.entityManager.query(select_query + query + condition + "LIMIT "+ limit +" OFFSET " + skippedItems);
+
+        const data = {
+            data: result,
+            page,
+            limit,
+            from: skippedItems + 1,
+            to,
+            total,
+            nextPage
+        };
+        return data;
+    }
+
 }
