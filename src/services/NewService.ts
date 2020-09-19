@@ -4,14 +4,17 @@ import {LwNews} from "../models/LwNews";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwNewsRepository} from "../repositories/LwNewsRepository";
 import {NewsErrors} from "../api/errors/NewsNotFoundError";
+import {LwNewsTrace} from "../models/LwNewsTrace";
+import {LwNewTraceRepository} from "../repositories/LwNewTraceRepository";
 
 @Service()
 export class LwNewService extends BaseService<LwNews> {
-    constructor(@OrmRepository() private lwNewsRepository: LwNewsRepository) {
+    constructor(@OrmRepository() private lwNewsRepository: LwNewsRepository,
+                @OrmRepository() private lwNewTraceRepository: LwNewTraceRepository) {
         super(LwNews);
     }
 
-    public getNewsDetail (newsId: number): Promise<LwNews> {
+    public getNewsDetail (newsId: number, userId: number): Promise<LwNews> {
         let response: any;
         return this.lwNewsRepository.getNewsDetail(newsId).then((res)=> {
             if (res) {
@@ -23,6 +26,7 @@ export class LwNewService extends BaseService<LwNews> {
                     description : res.description,
                     image_url_list: res.imageUrlList
                 };
+                this.view(newsId, userId);
             } else {
                 throw new NewsErrors(404);
             }
@@ -39,6 +43,6 @@ export class LwNewService extends BaseService<LwNews> {
     }
 
     public view(newsId: number, userId: number) {
-        return this.lwNewsRepository.view(newsId, userId);
+        return this.lwNewTraceRepository.view(newsId, userId);
     }
 }

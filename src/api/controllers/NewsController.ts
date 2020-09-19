@@ -15,8 +15,9 @@ export class NewsController {
     ) {};
 
     @Get("/:news_id")
-    public async getNewsDetail(@Param("news_id") newsId: number) {
-        return this._lwNewService.getNewsDetail(newsId);
+    public async getNewsDetail(@CurrentUser({required: true}) user: ResPartner,
+                               @Param("news_id") newsId: number) {
+        return this._lwNewService.getNewsDetail(newsId, user.id);
     }
 
     @Get()
