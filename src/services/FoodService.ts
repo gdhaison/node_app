@@ -12,9 +12,9 @@ export class LwFoodService extends BaseService<LwFood> {
         super(LwFood);
     }
 
-    public search(name: string, category: string, page: number, limit: number):
+    public search(name: string, category: string, page: number = 1, limit: number = 10, user_id: number):
         Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
-        return this.lwfoodRepository.findByNameAndCategory(name, category, page, limit);
+        return this.lwfoodRepository.findByNameAndCategory(name, category, page, limit, user_id);
     }
 
     public async getById(id: number, partnerId: number): Promise<any> {
@@ -62,14 +62,14 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwfoodRepository.save(payload);
     }
 
-    public getFoodByDate(date: string, menu: string, user_id: number, page: number, limit: number):
+    public getFoodByDate(date: string, menu: string, user_id: number, page: number = 1, limit: number = 10):
         Promise<any> {
         return this.lwfoodRepository.findFoodByDateCategory(date, menu, user_id, page, limit);
     }
 
-    public getOtherFood(category: string, page: number, limit: number): Promise<any>
+    public getOtherFood(category: string, page: number = 1, limit: number = 1, user_id: number): Promise<any>
     {
-        return this.lwfoodRepository.findFoodByCatefory(category, page, limit);
+        return this.lwfoodRepository.findFoodByCategory(category, page, limit, user_id);
     }
 
 }

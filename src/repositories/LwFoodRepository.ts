@@ -18,19 +18,19 @@ export class LwFoodRepository extends Repository<LwFood> {
     }
 
 
-    async findByNameAndCategory(search_text: string, category: string, page: number, limit: number):
+    async findByNameAndCategory(search_text: string, category: string, page: number, limit: number, user_id: number):
         Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
         const skippedItems = (page - 1) * limit;
         const select_query =
-            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description," +
-            "(SELECT COUNT(1) FROM lw_food_star lfs where lfs.like_flag = 1 " +
-            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE " +
-            "lfs.food_id = lf.id) AS star ";
+            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
+            "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" AND lfs.like_flag = 1 " +
+            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id + " " +
+            "AND lfs.food_id = lf.id) AS star ";
 
         const query =
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc " +
-            "on lfc.food_id = lf.id inner join lw_category lc on lc.id = lfc.category_id ";
-        const condition = "WHERE lf.name LIKE '%"+ search_text +"%' and lc.code = '"+ category +"'" ;
+            "on lfc.food_id = lf.id inner join lw_category lc on lc.code = lfc.category_code ";
+        const condition = "WHERE lf.name LIKE '%"+ search_text +"%' and lc.code = '"+ category +"' and lfs.res_partner_id = " + user_id;
         const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
@@ -145,7 +145,7 @@ export class LwFoodRepository extends Repository<LwFood> {
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id INNER JOIN lw_food_lw_menu_rel lflmr " +
             "ON lflmr.lw_food_id = lf.id INNER JOIN lw_diet ld ON ld.lw_menu_id = lflmr.lw_menu_id INNER JOIN lw_week " +
             "lw ON lw.id = ld.lw_week_id INNER JOIN lw_menu lm ON lm.id = ld.lw_menu_id WHERE " +
-            "lw.day_of_week = '" + date +"' AND ld.partner_id = " + user_id + " AND lm.code = '" + menu + "'";
+            "lw.day_of_week = '" + date +"' AND ld.partner_id = " + user_id + " AND lm.code = '" + menu + "' AND lfs.res_partner_id = " + user_id;
         const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id))" + query);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
@@ -178,17 +178,17 @@ export class LwFoodRepository extends Repository<LwFood> {
         return data;
     }
 
-    public async findFoodByCatefory(category: string, page: number, limit: number): Promise<any> {
+    public async findFoodByCategory(category: string, page: number, limit: number, user_id: number): Promise<any> {
         const skippedItems = (page - 1) * limit;
         const select_query =
-            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description," +
-            "(SELECT COUNT(1) FROM lw_food_star lfs where lfs.like_flag = 1 " +
-            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE " +
-            "lfs.food_id = lf.id) AS star ";
+            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
+            "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" AND lfs.like_flag = 1 " +
+            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" " +
+            "AND lfs.food_id = lf.id) AS star ";
         const query =
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc " +
-            "on lfc.food_id = lf.id inner join lw_category lc on lc.id = lfc.category_id ";
-        const condition = "WHERE lc.code = '" + category + "'";
+            "on lfc.food_id = lf.id inner join lw_category lc on lc.code = lfc.category_code ";
+        const condition = "WHERE lc.code = '" + category + "' AND lfs.res_partner_id = " + user_id;
 
         const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
         const total = parseInt(count[0]["count"]);
