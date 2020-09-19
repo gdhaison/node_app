@@ -49,6 +49,17 @@ export class LwFoodController {
         return this._lwfoodService.search(search_text, category, page, limit);
     }
 
+    @Get("/other-food")
+    public async getOtherFood(
+        @QueryParam("category") category: string,
+        @QueryParam("page") page: number,
+        @QueryParam("limit") limit: number,
+        @CurrentUser({required: true}) user: ResPartner,
+    ): Promise<any>
+    {
+        return this._lwfoodService.getOtherFood(category, page, limit);
+    }
+
     @Get("/foods")
     getFoodByDate(
         @QueryParam("date") date: string,
@@ -86,4 +97,5 @@ export class LwFoodController {
         res.status(StatusCodes.NO_CONTENT);
         return this._lwfoodService.changeFood(data);
     }
+
 }
