@@ -72,4 +72,9 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwfoodRepository.findFoodByCategory(category, page, limit, user_id);
     }
 
+    public finishDiet(menuCode: string, dow: string, userId: number): Promise<any>
+    {
+        return this.lwfoodRepository.finishDiet(menuCode, dow, userId);
+    }
+
 }
