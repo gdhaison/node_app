@@ -44,9 +44,23 @@ export class LwFoodController {
         @QueryParam("category") category: string,
         @QueryParam("page") page: number,
         @QueryParam("limit") limit: number,
+        @CurrentUser({required: true}) user: ResPartner
         ):
         Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
-        return this._lwfoodService.search(search_text, category, page, limit);
+        const user_id = user.id;
+        return this._lwfoodService.search(search_text, category, page, limit, user_id);
+    }
+
+    @Get("/other-food")
+    public async getOtherFood(
+        @QueryParam("category") category: string,
+        @QueryParam("page") page: number,
+        @QueryParam("limit") limit: number,
+        @CurrentUser({required: true}) user: ResPartner,
+    ): Promise<any>
+    {
+        const user_id = user.id;
+        return this._lwfoodService.getOtherFood(category, page, limit, user_id);
     }
 
     @Get("/foods")
@@ -86,4 +100,5 @@ export class LwFoodController {
         res.status(StatusCodes.NO_CONTENT);
         return this._lwfoodService.changeFood(data);
     }
+
 }
