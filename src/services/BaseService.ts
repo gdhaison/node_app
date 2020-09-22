@@ -5,8 +5,6 @@ export type ObjectType<T> = { new(): T } | Function;
 export type listForm<T> = Promise<[T[], number]> | Promise<T[]>;
 const listForm = Promise;
 
-// you can extends this BaseService to use common method
-
 export abstract class BaseService<T extends BaseModel> {
     protected genericRepository: Repository<T>;
     private repo: ObjectType<T>;
