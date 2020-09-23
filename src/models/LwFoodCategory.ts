@@ -8,4 +8,7 @@ export class LwFoodCategory {
     @Column({name: "category_code"})
     public categoryCode: string;
 
+    @Column({name: "partner_id"})
+    public partnerId: number;
+
 }

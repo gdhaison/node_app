@@ -65,7 +65,8 @@ export class LwFoodRepository extends Repository<LwFood> {
 
     async getById(id: number, partnerId: number): Promise<any> {
         // const data = this.entityManager.query("SELECT lf.name FROM lw_food AS lf WHERE lf.name = $1 AND lf.lastName = $2", ["John", "Doe"]);
-        const data = await this.entityManager.query("SELECT lf.id, lf.image, lf.name, lf.calo, lf.total_like as heart, lfs.like_flag as is_like, " +
+        const data = await this.entityManager.query("SELECT lf.id, lf.image, lf.name, lf.calo, (SELECT COUNT(1) FROM lw_food_star lfs " +
+            " where lfs.like_flag = 1 AND lfs.food_id = lf.id) AS heart, lfs.like_flag as is_like, " +
             "lfs.star, lf.description, lfs.star FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = $1 and lfs.res_partner_id = $2", [id, partnerId]);
         if (Array.isArray(data) && data.length)
             return data[0];
@@ -102,6 +103,23 @@ export class LwFoodRepository extends Repository<LwFood> {
             .where("lw_food_star.foodId = :food_id", {food_id: foodId})
             .andWhere("lw_food_star.resPartnerId = :partner_id", {partner_id: resPartnerId})
             .getOne();
+
+        const foodCategory = await this.createQueryBuilder()
+            .select("lw_food_category")
+            .from(LwFoodCategory, "lw_food_category")
+            .where("lw_food_category.foodId = :food_id", {food_id: foodId})
+            .andWhere("lw_food_category.partnerId = :partner_id", {partner_id: resPartnerId})
+            .andWhere("lw_food_category.category_code = 'food-like'")
+            .getOne();
+
+        if (!foodCategory) {
+            this.createQueryBuilder()
+                .insert()
+                .into(LwFoodCategory)
+                .values({foodId: foodId, categoryCode: "food-like", partnerId: resPartnerId})
+                .execute();
+        }
+
         if (result) {
             return await this.createQueryBuilder()
                 .update(LwFoodStar)

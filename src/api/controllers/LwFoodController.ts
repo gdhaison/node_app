@@ -81,8 +81,11 @@ export class LwFoodController {
     }
 
     @Post("/like")
-    public async like(@CurrentUser({required: true}) user: ResPartner, @Body() data: any,
-                      @Req() req: express.Request, @Res() res: express.Response) {
+    public async like(
+        @CurrentUser({required: true}) user: ResPartner,
+        @Body() data: any,
+        @Req() req: express.Request,
+        @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
         return this._lwfoodService.like(data.food_id, user.id, 1);
     }
