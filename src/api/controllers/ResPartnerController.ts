@@ -67,7 +67,7 @@ export class ResPartnerController {
                 weight: result.weight,
                 target_weight: result.targetWeight,
                 physical: result.physical,
-                muscle: result.muscle,
+                muscle: user.muscle,
             });
         });
     }
