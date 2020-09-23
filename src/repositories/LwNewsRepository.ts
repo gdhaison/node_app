@@ -16,15 +16,15 @@ export class LwNewsRepository extends Repository<LwNews> {
         const data = await this.query(`select ln2.id ,
              ln2.image_url_list,
              ln2.title,
-             (select count(id) 
+             (select count(*) 
              from lw_news_trace lnt 
              where lnt.news_id  = ln2.id
               and lnt.like_flg = true) as total_like,
-             (select count(id) 
+             (select count(*) 
              from lw_news_trace lnt 
              where lnt.news_id  = ln2.id
-              and lnt.read_flg = true) as total_views,
-              (select count(id) 
+              and lnt.like_flg = true) as total_views,
+              (select count(*) 
              from lw_news_trace lnt 
              where lnt.news_id  = ln2.id
               and lnt.partner_id = ${userId}) as like_flag,
@@ -58,8 +58,10 @@ export class LwNewsRepository extends Repository<LwNews> {
     }
 
     async like(newsId: number, likeFlag: boolean, userId: number) {
-        const resultNew = await this.createQueryBuilder("LwNew")
-            .where(`LwNew.id = ${newsId}`)
+        const resultNew = await this.createQueryBuilder()
+            .select("*")
+            .from(LwNews, "lw_news")
+            .where(`lw_news.id = ${newsId}`)
             .getRawOne();
         const resultNewTrace = await this.createQueryBuilder()
             .select("*")
@@ -94,40 +96,4 @@ export class LwNewsRepository extends Repository<LwNews> {
         }
     }
 
-    async view(newsId: number, userId: number) {
-        const resultNew = await this.createQueryBuilder("LwNew")
-            .where(`LwNew.id = ${newsId}`)
-            .getRawOne();
-        const resultNewTrace = await this.createQueryBuilder()
-            .select("*")
-            .from(LwNewsTrace, "lnt")
-            .where(`lnt.news_id = ${newsId}`)
-            .andWhere(`lnt.partner_id = ${userId}`)
-            .getRawMany();
-        if (resultNew && resultNewTrace.length) {
-            return this.createQueryBuilder()
-                .update(LwNewsTrace)
-                .set({readFlg: true})
-                .where(`news_id = ${newsId}`)
-                .andWhere(`partner_id = ${userId}`)
-                .execute();
-        }
-        if (resultNew && !resultNewTrace.length) {
-            return this.createQueryBuilder()
-                .insert()
-                .into(LwNewsTrace,
-                    [ "partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
-                .values(
-                    {
-                        partnerId: userId,
-                        newsId: newsId,
-                        likeFlg: false,
-                        readFlg: true,
-                        createDate: new Date(),
-                        writeDate: new Date(),
-                    }
-                )
-                .execute();
-        }
-    }
 }
