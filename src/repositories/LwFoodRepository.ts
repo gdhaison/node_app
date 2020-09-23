@@ -8,6 +8,7 @@ import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
 import {LwFoodCategory} from "../models";
 import {PageNotFound} from "../api/errors/PageNotFound";
+import {LwFoodMenuPartner} from "../models/LwFoodMenuPartner";
 
 @Service()
 @EntityRepository(LwFood)
@@ -117,11 +118,11 @@ export class LwFoodRepository extends Repository<LwFood> {
         }
     }
 
-    async changeFood(data: { foodId: number; categoryCode: string }[]): Promise<any> {
+    async changeFood(data: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[]): Promise<any> {
         return await this.createQueryBuilder()
             .createQueryBuilder()
             .insert()
-            .into(LwFoodCategory)
+            .into(LwFoodMenuPartner)
             .values(data)
             .execute();
     }

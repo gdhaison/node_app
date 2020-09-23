@@ -98,6 +98,7 @@ export class LwFoodController {
     public async changeFood(@CurrentUser({required: true}) user: ResPartner, @Body() data: any,
                         @Req() req: express.Request, @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
+        data.partnerId = user.id;
         return this._lwfoodService.changeFood(data);
     }
 
