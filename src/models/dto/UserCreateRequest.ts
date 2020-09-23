@@ -1,4 +1,4 @@
-import {IsEmail, IsNumber, IsPhoneNumber, IsString, Matches} from "class-validator";
+import {IsArray, IsEmail, IsNumber, IsPhoneNumber, IsString, Matches} from "class-validator";
 import {JsonProperty} from "json-object-mapper";
 
 export class UserCreateRequest {
@@ -31,6 +31,6 @@ export class UserCreateRequest {
     @IsString()
     physical!: string;
 
-    @IsString()
-    muscle!: string;
+    @IsArray()
+    muscle!: string[];
 }

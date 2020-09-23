@@ -1,5 +1,5 @@
 import {Service} from "typedi";
-import {Users, ResPartner} from "../models";
+import {Users, ResPartner, LwFood} from "../models";
 import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {ResPartnerRepository} from "../repositories/ResPartnerRepository";
@@ -12,11 +12,17 @@ import {UserInfoRequest} from "../models/dto/UserInfoRequest";
 import {UserChangePasswordRequest} from "../models/dto/UserChangePasswordRequest";
 import {WrongPasswordErrors} from "../api/errors/WrongPasswordErros";
 import {StatusCodes} from "http-status-codes";
+import {LwWeightLossAreaPartnerRepository} from "../repositories/LwWeightLossAreaPartnerRepository";
+import {LwWeightLossAreaPartner} from "../models/LwWeightLossAreaPartner";
+import {LwWeightLossAreaRepository} from "../repositories/LwWeightLossAreaRepository";
+import {LwWeightLossArea} from "../models/LwWeightLossArea";
 
 
 @Service()
 export class ResPartnerService extends BaseService<ResPartner> {
-    constructor(@OrmRepository() private _resPartnerRepository: ResPartnerRepository) {
+    constructor(@OrmRepository() private _resPartnerRepository: ResPartnerRepository,
+                @OrmRepository() private _lwWeightLossAreaPartnerRepository: LwWeightLossAreaPartnerRepository,
+                @OrmRepository() private _lwWeightLossAreaRepository: LwWeightLossAreaRepository) {
         super(Users);
     }
 
@@ -53,7 +59,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.save(user);
     }
 
-    public async create(user: UserCreateRequest): Promise<ResPartner> {
+    public async create(user: UserCreateRequest): Promise<any> {
         logger.info(user);
         const userValid = await this.getByPhone(user.phone);
         if (userValid && userValid.length > 0)
@@ -95,13 +101,26 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (user.physical) {
             payload.physical = user.physical;
         }
-        if (user.muscle) {
-            payload.muscle = user.muscle;
-        }
         payload.createDate = new Date();
         payload.writeDate = new Date();
 
-        return this._resPartnerRepository.save(payload);
+        const muscleData: Partial<LwWeightLossAreaPartner>[] = [];
+        const lwWeightLossAreaPartner: Partial<LwWeightLossAreaPartner> = {};
+        const now = new Date();
+        const userDb = await this._resPartnerRepository.save(payload);
+
+        const weightLossArea = await this._lwWeightLossAreaRepository.getByName(user.muscle);
+
+        weightLossArea.forEach((item: LwWeightLossArea) => {
+            lwWeightLossAreaPartner.partnerId = userDb.id;
+            lwWeightLossAreaPartner.weightLossAreaId = item.id;
+            lwWeightLossAreaPartner.active = true;
+            lwWeightLossAreaPartner.createDate = now;
+            lwWeightLossAreaPartner.writeDate = now;
+            muscleData.push(lwWeightLossAreaPartner);
+        });
+        await this._lwWeightLossAreaPartnerRepository.bulkInsert(muscleData);
+        return userDb;
     }
 
     public async changePassword(userInfo: UserChangePasswordRequest, user: ResPartner): Promise<ResPartner> {
