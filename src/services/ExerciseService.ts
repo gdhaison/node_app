@@ -7,6 +7,7 @@ import {LwExerciseRepository} from "../repositories/LwExerciseRepository";
 import {UserNotFoundError} from "../api/errors/UserNotFoundError";
 import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
+import {AreaNotFoundError} from "../api/errors/AreaNotFoundError";
 
 @Service()
 export class ExerciseService extends BaseService<LwExercise> {
@@ -34,6 +35,14 @@ export class ExerciseService extends BaseService<LwExercise> {
             throw new ExerciseNotFoundError(ErrorCode.EXERCISE_NOT_EXIST);
         }
         return this.lwExerciseRepository.putExercise(exerciseId, userId);
+    }
+
+    public async getByArea(area: string = "body", page: number = 1, limit: number = 10): Promise<any>{
+       const list_area = ["hand", "body", "stomach", "foot"];
+       if (list_area.includes(area)){
+           return this.lwExerciseRepository.getByArea(area, page, limit);
+       }
+       throw new AreaNotFoundError("404");
     }
 
 }

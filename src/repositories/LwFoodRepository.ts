@@ -65,9 +65,9 @@ export class LwFoodRepository extends Repository<LwFood> {
 
     async getById(id: number, partnerId: number): Promise<any> {
         // const data = this.entityManager.query("SELECT lf.name FROM lw_food AS lf WHERE lf.name = $1 AND lf.lastName = $2", ["John", "Doe"]);
-        const data = await this.entityManager.query("SELECT lf.id, lf.image, lf.name, lf.calo, (SELECT COUNT(1) FROM lw_food_star lfs " +
-            " where lfs.like_flag = 1 AND lfs.food_id = lf.id) AS heart, lfs.like_flag as is_like, " +
-            "lfs.star, lf.description, lfs.star FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = $1 and lfs.res_partner_id = $2", [id, partnerId]);
+        const data = await this.entityManager.query("SELECT lf.id, lf.image, lf.name, lf.calo, lf.total_like as heart, lfs.like_flag as is_like, " +
+            "lfs.star as user_star, (select round(avg(lfs1.star)) from lw_food_star lfs1 where lfs1.food_id = lf.id) as star_avg" +
+            ", lf.description,  FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = $1 and lfs.res_partner_id = $2", [id, partnerId]);
         if (Array.isArray(data) && data.length)
             return data[0];
         throw new FoodNotFoundError(ErrorCode.FOOD_NOT_FOUND);

@@ -5,6 +5,7 @@ import {LwExercise} from "../models/LwExercise";
 import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
 import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
+import {PageNotFound} from "../api/errors/PageNotFound";
 
 @Service()
 @EntityRepository(LwExercise)
@@ -51,5 +52,43 @@ export class LwExerciseRepository extends Repository<LwExercise> {
             .addSelect("lwe.name")
             .where("lwe.id in :ids", {ids: data[0]});
         return paginate<LwExercise>(queryBuilder, options);
+    }
+
+    async getByArea(area: string, page: number, limit: number): Promise<any> {
+        const skippedItems = (page - 1) * limit;
+        const select_query = "Select le.id, le.name, le.description, le.kcal, le.image, le.video ";
+        const query = "from lw_exercise le inner join lw_exercise_lw_weightloss_area_rel lelw " +
+            "on le.id = lelw.lw_exercise_id inner join lw_weightloss_area lwa on lwa.id = " +
+            " lelw.lw_weightloss_area_id where lwa.name = '" + area + "' ";
+
+        const count = await this.entityManager.query("SELECT COUNT(*) " + query);
+        const total = parseInt(count[0]["count"]);
+        const total_page = Math.ceil(total/limit);
+        let to = 0;
+        let nextPage = true;
+        if (total > page*limit) {
+            to = page*limit;
+        }
+        else if ( page > total_page && total_page != 0) {
+            throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
+        }
+        else{
+            to = total;
+            nextPage = false;
+        }
+
+        const result = await this.entityManager.query(select_query + query + "LIMIT "+ limit +" OFFSET " + skippedItems);
+
+        const data = {
+            data: result,
+            page,
+            limit,
+            from: skippedItems + 1,
+            to,
+            total,
+            nextPage
+        };
+
+        return data;
     }
 }

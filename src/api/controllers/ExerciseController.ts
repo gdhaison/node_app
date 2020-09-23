@@ -24,6 +24,16 @@ export class ExerciseController {
         return this._exerciseService.paginate({page: page, limit: pageSize}, user.id);
     }
 
+    @Get("/area")
+    public async getExByArea(
+        @QueryParam("area") area: string,
+        @QueryParam("page") page: number,
+        @QueryParam("limit") limit: number,
+        @CurrentUser({required: true}) user: ResPartner
+    ): Promise<any>{
+        return this._exerciseService.getByArea(area, page, limit);
+    }
+
     @Get("/:exercise_id")
     public async getById(@Param("exercise_id") exerciseId: number, @Req() req: express.Request, @Res() res: express.Response) {
         return this._exerciseService.getById(exerciseId);
