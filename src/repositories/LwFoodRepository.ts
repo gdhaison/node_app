@@ -239,4 +239,17 @@ export class LwFoodRepository extends Repository<LwFood> {
         return data;
     }
 
+    public async finishDiet(menuCode: string, dow: string, userId: number): Promise<any>
+    {
+        const diet = await this.entityManager.query("Select ld.id from lw_diet ld inner join lw_menu lm" +
+            " on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '" + dow +
+            "' and lm.code = '" + menuCode + "' and ld.partner_id = " + userId
+        );
+        const diet_id = parseInt(diet[0]["id"]);
+        const date = new Date().toISOString();
+        return await this.entityManager.query(
+            "Insert into lw_diet_today (diet_id, status, created_date) values ("+ diet_id +", true, '" + date.toString() + "')"
+        );
+    }
+
 }
