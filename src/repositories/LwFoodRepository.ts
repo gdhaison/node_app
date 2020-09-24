@@ -25,7 +25,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         const select_query =
             "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
             "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" AND lfs.like_flag = 1 " +
-            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id + " " +
+            "AND lfs.food_id = lf.id) AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id + " " +
             "AND lfs.food_id = lf.id) AS star ";
 
         const query =
