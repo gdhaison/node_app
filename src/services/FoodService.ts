@@ -31,7 +31,8 @@ export class LwFoodService extends BaseService<LwFood> {
 
     public async changeFood(data: any) {
         const foodCategoryArr: { foodId: number; menuCode: string; partnerId: number ; dayOfWeek: string}[] = [];
-        const foodIds = data.food_ids;
+        const foodIds = data.food_add_ids;
+        const foodDeleteIds = data.food_delete_ids;
         if (Array.isArray(foodIds) && foodIds.length)
             foodIds.forEach((item: number) => {
                 foodCategoryArr.push({
@@ -41,7 +42,7 @@ export class LwFoodService extends BaseService<LwFood> {
                     dayOfWeek: data.dow
                 });
             });
-        return this.lwfoodRepository.changeFood(foodCategoryArr);
+        return this.lwfoodRepository.changeFood(foodCategoryArr, foodDeleteIds);
     }
 
     public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {

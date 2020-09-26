@@ -16,13 +16,8 @@ import express from "express";
 import {Req} from "routing-controllers/decorator/Req";
 import {Res} from "routing-controllers/decorator/Res";
 import {Param} from "routing-controllers/decorator/Param";
-import logger from "../../lib/logger/logger";
 import {ResPartner} from "../../models";
 import {StatusCodes} from "http-status-codes";
-import {ErrorCode} from "../../enums/ErrorCode";
-import {IsNumber, isNumberString, IsString} from "class-validator";
-
-
 
 @JsonController("/diets")
 export class LwFoodController {
@@ -87,7 +82,7 @@ export class LwFoodController {
         @Req() req: express.Request,
         @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
-        return this._lwfoodService.like(data.food_id, user.id, 1);
+        return this._lwfoodService.like(data.food_id, user.id, data.like_flag);
     }
 
     @Post("/rating")
@@ -110,8 +105,7 @@ export class LwFoodController {
         @CurrentUser({required: true}) user: ResPartner,
         @QueryParam("menu_code") menuCode: string,
         @QueryParam("dow") dow: string,
-    )
-    {
+    ) {
         const userId = user.id;
         return this._lwfoodService.finishDiet(menuCode, dow, userId);
     }

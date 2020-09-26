@@ -1,4 +1,4 @@
-import {EntityManager, EntityRepository, Repository} from "typeorm";
+import {DeleteResult, EntityManager, EntityRepository, getConnection, Repository} from "typeorm";
 import {Service} from "typedi";
 import {LwFood} from "../models/LwFood";
 import {InjectManager} from "typeorm-typedi-extensions";
@@ -9,6 +9,7 @@ import {ErrorCode} from "../enums/ErrorCode";
 import {LwFoodCategory} from "../models";
 import {PageNotFound} from "../api/errors/PageNotFound";
 import {LwFoodMenuPartner} from "../models/LwFoodMenuPartner";
+import logger from "../lib/logger/logger";
 
 @Service()
 @EntityRepository(LwFood)
@@ -148,7 +149,9 @@ export class LwFoodRepository extends Repository<LwFood> {
         }
     }
 
-    async changeFood(data: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[]): Promise<any> {
+    async changeFood(data: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[], foodDeleteIds: number[]): Promise<any> {
+        const deleteResponse = await this.entityManager.delete(LwFoodMenuPartner, foodDeleteIds);
+        logger.info(`Delete all food menu ids: ${deleteResponse}`);
         return await this.createQueryBuilder()
             .createQueryBuilder()
             .insert()
@@ -156,7 +159,6 @@ export class LwFoodRepository extends Repository<LwFood> {
             .values(data)
             .execute();
     }
-
 
     async findFoodByDateCategory(
         date: string,
@@ -258,17 +260,13 @@ export class LwFoodRepository extends Repository<LwFood> {
         return data;
     }
 
-    public async finishDiet(menuCode: string, dow: string, userId: number): Promise<any>
-    {
-        const diet = await this.entityManager.query("Select ld.id from lw_diet ld inner join lw_menu lm" +
-            " on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '" + dow +
-            "' and lm.code = '" + menuCode + "' and ld.partner_id = " + userId
-        );
+    public async finishDiet(menuCode: string, dow: string, userId: number): Promise<any> {
+        const diet = await this.entityManager.query(`Select ld.id from lw_diet ld inner join lw_menu lm +
+            on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '${dow}'
+            and lm.code = '${menuCode}' and ld.partner_id = ${userId}`);
         const diet_id = parseInt(diet[0]["id"]);
         const date = new Date().toISOString();
-        return await this.entityManager.query(
-            "Insert into lw_diet_today (diet_id, status, created_date) values ("+ diet_id +", true, '" + date.toString() + "')"
-        );
+        return await this.entityManager
+            .query(`Insert into lw_diet_today (diet_id, status, created_date) values ('${diet_id}', ${true}, '${date}')`);
     }
-
 }

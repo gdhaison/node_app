@@ -43,9 +43,9 @@ export class ExerciseController {
     public async putExercise(
         @QueryParam("exercise_id") exercise_id: number,
         @CurrentUser({required: true}) user: ResPartner,
-    ): Promise<any>
-    {
+    ): Promise<any> {
         const userId = user.id;
         return this._exerciseService.putExercise(exercise_id, userId);
     }
+
 }
