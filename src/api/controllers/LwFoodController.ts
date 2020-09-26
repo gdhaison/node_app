@@ -53,7 +53,7 @@ export class LwFoodController {
 
     @Get("/other-food")
     public async getOtherFood(
-        @QueryParam("category") category: string,
+        @QueryParam("category", {required: true}) category: string,
         @QueryParam("page") page: number,
         @QueryParam("limit") limit: number,
         @CurrentUser({required: true}) user: ResPartner,

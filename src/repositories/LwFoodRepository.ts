@@ -23,16 +23,25 @@ export class LwFoodRepository extends Repository<LwFood> {
         Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
         const skippedItems = (page - 1) * limit;
         const select_query =
-            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
+            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description," +
+            "(select lfs1.star as user_star from lw_food_star lfs1  where lfs1.res_partner_id = " + user_id +" and lfs1.food_id = lf.id)," +
             "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" AND lfs.like_flag = 1 " +
-            "AND lfs.food_id = lf.id) AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id + " " +
-            "AND lfs.food_id = lf.id) AS star ";
+            "AND lfs.food_id = lf.id) AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs " +
+            "WHERE lfs.food_id = lf.id) AS star ";
 
         const query =
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc " +
             "on lfc.food_id = lf.id inner join lw_category lc on lc.code = lfc.category_code ";
-        const condition = "WHERE lf.name LIKE '%"+ search_text +"%' and lc.code = '"+ category +"' and lfs.res_partner_id = " + user_id;
-        const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
+        let condition = "WHERE  lc.code = '"+ category +"'";
+
+        if (search_text) {
+            condition = "WHERE lf.name LIKE '%"+ search_text +"%' and lc.code = '"+ category +"'";
+        }
+        let count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
+        if(category == "food-like") {
+            count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition + "AND lfc.partner_id = " + user_id);
+        }
+
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
         let to = 0;
@@ -48,7 +57,10 @@ export class LwFoodRepository extends Repository<LwFood> {
             nextPage = false;
         }
 
-        const result = await this.entityManager.query(select_query + query + condition + "LIMIT "+ limit +" OFFSET " + skippedItems);
+        let result = await this.entityManager.query(select_query + query + condition + "LIMIT " + limit + " OFFSET " + skippedItems);
+        if(category == "food-like") {
+            result = await this.entityManager.query(select_query + query + condition + "AND lfc.partner_id = " + user_id + "LIMIT " + limit + " OFFSET " + skippedItems);
+        }
 
         const data = {
             data: result,
@@ -67,7 +79,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         // const data = this.entityManager.query("SELECT lf.name FROM lw_food AS lf WHERE lf.name = $1 AND lf.lastName = $2", ["John", "Doe"]);
         const data = await this.entityManager.query("SELECT lf.id, lf.image, lf.name, lf.calo, lf.total_like as heart, lfs.like_flag as is_like, " +
             "lfs.star as user_star, (select round(avg(lfs1.star)) from lw_food_star lfs1 where lfs1.food_id = lf.id) as star_avg" +
-            ", lf.description,  FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = $1 and lfs.res_partner_id = $2", [id, partnerId]);
+            ", lf.description FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = $1 and lfs.res_partner_id = $2", [id, partnerId]);
         if (Array.isArray(data) && data.length)
             return data[0];
         throw new FoodNotFoundError(ErrorCode.FOOD_NOT_FOUND);
@@ -200,16 +212,19 @@ export class LwFoodRepository extends Repository<LwFood> {
     public async findFoodByCategory(category: string, page: number, limit: number, user_id: number): Promise<any> {
         const skippedItems = (page - 1) * limit;
         const select_query =
-            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star," +
+            "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description, " +
+            "(select lfs1.star as user_star from lw_food_star lfs1  where lfs1.res_partner_id = " + user_id +" and lfs1.food_id = lf.id)," +
             "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" AND lfs.like_flag = 1 " +
-            "AND lfs.food_id = lf.id) AS heart,(SELECT AVG(lfs.star) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" " +
+            "AND lfs.food_id = lf.id) AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs WHERE lfs.res_partner_id = "+ user_id +" " +
             "AND lfs.food_id = lf.id) AS star ";
         const query =
             "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc " +
             "on lfc.food_id = lf.id inner join lw_category lc on lc.code = lfc.category_code ";
-        const condition = "WHERE lc.code = '" + category + "' AND lfs.res_partner_id = " + user_id;
-
-        const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
+        const condition = "WHERE lc.code = '" + category + "'";
+        let count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition);
+        if(category == "food-like") {
+            count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id)) " + query + condition + "AND lfc.partner_id = " + user_id);
+        }
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
         let to = 0;
@@ -225,7 +240,11 @@ export class LwFoodRepository extends Repository<LwFood> {
             nextPage = false;
         }
 
-        const result = await this.entityManager.query(select_query + query + condition + "LIMIT "+ limit +" OFFSET " + skippedItems);
+        let result = await this.entityManager.query(select_query + query + condition + "LIMIT " + limit + " OFFSET " + skippedItems);
+
+        if(category == "food-like") {
+            result = await this.entityManager.query(select_query + query + condition + "AND lfc.partner_id = " + user_id + "LIMIT " + limit + " OFFSET " + skippedItems);
+        }
 
         const data = {
             data: result,
