@@ -14,24 +14,14 @@ export class LwNewService extends BaseService<LwNews> {
         super(LwNews);
     }
 
-    public getNewsDetail (newsId: number, userId: number): Promise<LwNews> {
-        let response: any;
-        return this.lwNewsRepository.getNewsDetail(newsId).then((res)=> {
-            if (res) {
-                response = {
-                    id : res.id,
-                    title : res.title,
-                    heart : res.totalLike,
-                    view : res.totalViews,
-                    description : res.description,
-                    image_url_list: res.imageUrlList
-                };
-                this.view(newsId, userId);
-            } else {
-                throw new NewsErrors(404);
-            }
+    public async getNewsDetail (newsId: number, userId: number) {
+        await this.view(newsId, userId);
+        const response =  await this.lwNewsRepository.getNewsDetail(newsId, userId);
+        if (response) {
             return response;
-        });
+        } else {
+            throw new NewsErrors(404);
+        }
     }
 
     public getNews (page: number, limit: number, userId: number) {
