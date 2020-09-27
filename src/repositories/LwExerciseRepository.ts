@@ -56,10 +56,11 @@ export class LwExerciseRepository extends Repository<LwExercise> {
 
     async getByArea(area: string, page: number, limit: number): Promise<any> {
         const skippedItems = (page - 1) * limit;
-        const select_query = "Select le.id, le.name, le.description, le.kcal, le.image, le.video ";
-        const query = "from lw_exercise le inner join lw_exercise_lw_weightloss_area_rel lelw " +
-            "on le.id = lelw.lw_exercise_id inner join lw_weightloss_area lwa on lwa.id = " +
-            " lelw.lw_weightloss_area_id where lwa.name = '" + area + "' ";
+        const select_query = `Select le.id, le.name, le.image, (select count(*) from lw_exercise_video lev
+            where lev.exercise_id = le.id) as total_items `;
+        const query = `from lw_exercise le inner join lw_exercise_lw_weightloss_area_rel lelw
+            on le.id = lelw.lw_exercise_id inner join lw_weightloss_area lwa on lwa.id =
+            lelw.lw_weightloss_area_id where lwa.name = '${area}'`;
 
         const count = await this.entityManager.query("SELECT COUNT(*) " + query);
         const total = parseInt(count[0]["count"]);
