@@ -183,6 +183,16 @@ export class LwFoodRepository extends Repository<LwFood> {
             ON lflmr.lw_food_id = lf.id INNER JOIN lw_diet ld ON ld.lw_menu_id = lflmr.lw_menu_id INNER JOIN lw_week 
             lw ON lw.id = ld.lw_week_id INNER JOIN lw_menu lm ON lm.id = ld.lw_menu_id WHERE 
             lw.day_of_week = '${date}' AND ld.partner_id = ${user_id} AND lm.code = '${menu}' AND lfs.res_partner_id = ${user_id}`;
+
+        const count_diet = await this.entityManager.query(`Select count (*) from lw_diet_today where diet_id =
+            (Select ld.id from lw_diet ld inner join lw_menu lm
+            on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '${date}'
+            and lm.code = '${menu}' and ld.partner_id = ${user_id})`);
+        const diet_num = parseInt(count_diet[0]["count"]);
+        let isFinish = false;
+        if (diet_num!=0) {
+            isFinish = true;
+        }
         const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id))" + query);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
@@ -209,7 +219,8 @@ export class LwFoodRepository extends Repository<LwFood> {
             from: skippedItems + 1,
             to,
             total,
-            nextPage
+            nextPage,
+            is_finish: isFinish
         };
 
         return data;
