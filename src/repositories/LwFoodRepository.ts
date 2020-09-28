@@ -30,13 +30,14 @@ export class LwFoodRepository extends Repository<LwFood> {
             AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs 
             WHERE lfs.food_id = lf.id)::INTEGER AS star `;
 
-        const query =
+        let query =
             `FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc 
             on lfc.food_id = lf.id inner join lw_category lc on lc.code = lfc.category_code `;
         let condition = "";
 
         if (category == "") {
             condition = `WHERE lf.name LIKE '%${search_text}%'`;
+            query = "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id ";
         }
         else {
             condition = `WHERE lf.name LIKE '%${search_text}%'and lc.code = '${category}' `;
@@ -174,16 +175,24 @@ export class LwFoodRepository extends Repository<LwFood> {
 
         const skippedItems = (page - 1) * limit;
         const select_query =
-            `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,lfs.star AS user_star,
+            `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,(select lfs.star from lw_food_star
+             lfs where lfs.res_partner_id = ${user_id} and lfs.food_id = lf.id) AS user_star,
             (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id}  AND lfs.like_flag = 1 
-            AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id} 
-            AND lfs.food_id = lf.id)::INTEGER AS star `;
-        const query =
-            `FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id INNER JOIN lw_food_lw_menu_rel lflmr 
+            AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs 
+            where lfs.food_id = lf.id)::INTEGER AS star `;
+        const count_food_cate_partner = await this.entityManager.query(`Select count(*) from lw_food_menu_partner lfmp
+            where lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week = '${date}'`);
+        let query = "";
+        if (parseInt(count_food_cate_partner[0]["count"]) == 0){
+            query = `FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id INNER JOIN lw_food_lw_menu_rel lflmr 
             ON lflmr.lw_food_id = lf.id INNER JOIN lw_diet ld ON ld.lw_menu_id = lflmr.lw_menu_id INNER JOIN lw_week 
             lw ON lw.id = ld.lw_week_id INNER JOIN lw_menu lm ON lm.id = ld.lw_menu_id WHERE 
             lw.day_of_week = '${date}' AND ld.partner_id = ${user_id} AND lm.code = '${menu}' AND lfs.res_partner_id = ${user_id}`;
-
+        }
+        else {
+            query = ` FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id where lf.id in (select distinct lfmp.food_id FROM lw_food_menu_partner lfmp where lfmp.day_of_week = 
+            '${date}' and lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id}) `;
+        }
         const count_diet = await this.entityManager.query(`Select count (*) from lw_diet_today where diet_id =
             (Select ld.id from lw_diet ld inner join lw_menu lm
             on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '${date}'
