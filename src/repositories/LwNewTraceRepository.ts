@@ -31,7 +31,7 @@ export class LwNewTraceRepository extends Repository<LwNewsTrace> {
                     {
                         partnerId: userId,
                         newsId: newsId,
-                        likeFlg: true,
+                        likeFlg: false,
                         readFlg: true,
                         createDate: now,
                         writeDate: now,
