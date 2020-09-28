@@ -103,11 +103,11 @@ export class LwFoodController {
     @Post("/finished-eating")
     public async finishDiet(
         @CurrentUser({required: true}) user: ResPartner,
-        @QueryParam("menu_code") menuCode: string,
-        @QueryParam("dow") dow: string,
-    ) {
+        @Body() data: any
+    )
+    {
         const userId = user.id;
-        return this._lwfoodService.finishDiet(menuCode, dow, userId);
+        return this._lwfoodService.finishDiet(data.menuCode, data.dow, userId);
     }
 
 }
