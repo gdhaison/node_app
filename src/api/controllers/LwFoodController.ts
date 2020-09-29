@@ -107,7 +107,7 @@ export class LwFoodController {
     )
     {
         const userId = user.id;
-        return this._lwfoodService.finishDiet(data.menuCode, data.dow, userId);
+        return this._lwfoodService.finishDiet(data.menu_code, data.dow, userId);
     }
 
 }
