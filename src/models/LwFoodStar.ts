@@ -1,17 +1,17 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import {Column, Entity} from "typeorm";
+import {PrimaryColumn} from "typeorm";
 
-@Index("lw_food_star_pkey", ["foodId", "resPartnerId"], { unique: true })
-@Entity("lw_food_star", { schema: "public" })
+@Entity({name: "lw_food_star"})
 export class LwFoodStar {
-  @PrimaryGeneratedColumn({ type: "integer", name: "food_id" })
-  foodId: number;
+    @PrimaryColumn()
+    public foodId: number;
 
-  @PrimaryGeneratedColumn({ type: "integer", name: "res_partner_id" })
-  resPartnerId: number;
+    @Column({name: "res_partner_id"})
+    public resPartnerId: number;
 
-  @Column("integer", { name: "star", nullable: true })
-  star: number | null;
+    @Column({name: "star"})
+    public star: number;
 
-  @Column("integer", { name: "like_flag", nullable: true })
-  likeFlag: number | null;
+    @Column({name: "like_flag"})
+    public likeFlag: number;
 }

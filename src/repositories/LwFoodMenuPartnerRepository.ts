@@ -1,15 +1,7 @@
 import {DeleteResult, EntityManager, EntityRepository, getConnection, Repository} from "typeorm";
 import {Service} from "typedi";
-import {LwFood} from "../models/LwFood";
 import {InjectManager} from "typeorm-typedi-extensions";
-import {LwFoodStar} from "../models/LwFoodStar";
-import {RatingRequest} from "../models/dto/RatingRequest";
-import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
-import {ErrorCode} from "../enums/ErrorCode";
-import {LwFoodCategory} from "../models";
-import {PageNotFound} from "../api/errors/PageNotFound";
 import {LwFoodMenuPartner} from "../models/LwFoodMenuPartner";
-import logger from "../lib/logger/logger";
 
 @Service()
 @EntityRepository(LwFoodMenuPartner)

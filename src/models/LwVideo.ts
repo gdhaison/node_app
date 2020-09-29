@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { LwVideoCategory } from "./LwVideoCategory";
+import {LwExerciseVideo} from "./LwExerciseVideo";
 
 @Index("lw_video_pkey", ["id"], { unique: true })
 @Entity("lw_video", { schema: "public" })
@@ -45,4 +46,10 @@ export class LwVideo {
 
   @OneToMany(() => LwVideoCategory, (lwVideoCategory) => lwVideoCategory.video)
   lwVideoCategories: LwVideoCategory[];
+
+  @OneToMany(
+      () => LwExerciseVideo,
+      (lwExerciseVideo) => lwExerciseVideo.exercise
+  )
+  lwExerciseVideos: LwExerciseVideo[];
 }

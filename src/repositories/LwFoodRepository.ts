@@ -212,11 +212,9 @@ export class LwFoodRepository extends Repository<LwFood> {
         let nextPage = true;
         if (total > page*limit) {
             to = page*limit;
-        }
-        else if ( page > total_page && total_page != 0) {
+        } else if ( page > total_page && total_page != 0) {
             throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
-        }
-        else{
+        } else {
             to = total;
             nextPage = false;
         }
@@ -259,11 +257,9 @@ export class LwFoodRepository extends Repository<LwFood> {
         let nextPage = true;
         if (total > page*limit) {
             to = page*limit;
-        }
-        else if ( page > total_page && total_page != 0) {
+        } else if ( page > total_page && total_page != 0) {
             throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
-        }
-        else{
+        } else{
             to = total;
             nextPage = false;
         }
