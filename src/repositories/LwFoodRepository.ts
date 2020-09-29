@@ -82,10 +82,10 @@ export class LwFoodRepository extends Repository<LwFood> {
 
     async getById(id: number, partnerId: number): Promise<any> {
         // const data = this.entityManager.query("SELECT lf.name FROM lw_food AS lf WHERE lf.name = $1 AND lf.lastName = $2", ["John", "Doe"]);
-        const data = await this.entityManager.query(`SELECT lf.id, lf.image, lf.name, lf.calo, lfs.like_flag as is_like, 
+        const data = await this.entityManager.query(`SELECT lf.id, lf.image, lf.name, lf.calo, lfs.like_flag as is_like, lfs.star as user_star, lf.description, 
             (SELECT COUNT(1) FROM lw_food_star lfs2 WHERE lfs2.res_partner_id = ${partnerId} AND lfs2.like_flag = 1 AND lfs2.food_id = lf.id)::INTEGER AS heart, 
-            lfs.star as user_star, (select round(avg(lfs1.star)) from lw_food_star lfs1 where lfs1.food_id = lf.id)::INTEGER as star_avg 
-            , lf.description FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id and and lfs.res_partner_id = ${partnerId} WHERE lf.id = ${id}`);
+            (select round(avg(lfs1.star)) from lw_food_star lfs1 where lfs1.food_id = lf.id)::INTEGER as star_avg 
+            FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id and lfs.res_partner_id = ${partnerId} WHERE lf.id = ${id}`);
         if (Array.isArray(data) && data.length)
             return data[0];
         throw new FoodNotFoundError(ErrorCode.FOOD_NOT_FOUND);

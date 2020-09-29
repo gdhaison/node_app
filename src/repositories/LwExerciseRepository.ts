@@ -51,9 +51,7 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         else
             exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
         const queryBuilder = this.entityManager.createQueryBuilder(LwExercise, "lwe")
-            .select("lwe.id")
-            .addSelect("lwe.image")
-            .addSelect("lwe.name")
+            .select()
             .where("lwe.id in (:...ids)", {ids: [exerciseIds[0]]});
         return paginate<LwExercise>(queryBuilder, options);
     }
