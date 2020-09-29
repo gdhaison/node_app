@@ -76,7 +76,9 @@ export class ResPartnerController {
     update(@CurrentUser({required: true}) user: ResPartner, @Body() form: UserInfoRequest,
            @UploadedFile("avatar") fileAvatar: File) {
         logger.info(`File name avatar is ===>>>: ${fileAvatar.originalname}`);
-        const location = addPhoto(S3Album.AVATAR, fileAvatar);
+        let location: string = "";
+        if (fileAvatar)
+            location = addPhoto(S3Album.AVATAR, fileAvatar);
         return this._resPartnerService.changeInfoUser(form, user, location).then(function (result) {
             const jwt = Authentication.generateToken(result.phone);
             return {
