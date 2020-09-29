@@ -1,6 +1,8 @@
 import {Service} from "typedi";
 import {EntityRepository, Repository} from "typeorm";
 import {LwNewsTrace} from "../models/LwNewsTrace";
+import {ResPartner} from "../models";
+import {LwNews} from "../models/LwNews";
 
 @Service()
 @EntityRepository(LwNewsTrace)
@@ -21,7 +23,12 @@ export class LwNewTraceRepository extends Repository<LwNewsTrace> {
                 .andWhere(`partner_id = ${userId}`)
                 .execute();
         }
+
         if (!resultNewTrace.length) {
+            const resPartner = new ResPartner();
+            resPartner.id = userId;
+            const lwNews = new LwNews();
+            lwNews.id = newsId;
             const now = new Date();
             return this.createQueryBuilder()
                 .insert()
@@ -29,8 +36,8 @@ export class LwNewTraceRepository extends Repository<LwNewsTrace> {
                     [ "partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
                 .values(
                     {
-                        partnerId: userId,
-                        newsId: newsId,
+                        partner: resPartner,
+                        news: lwNews,
                         likeFlg: false,
                         readFlg: true,
                         createDate: now,

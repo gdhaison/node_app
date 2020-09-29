@@ -20,7 +20,8 @@ export class ExerciseService extends BaseService<LwExercise> {
     }
 
     async paginate(options: IPaginationOptions, partnerId: number): Promise<Pagination<LwExercise>> {
-        return this.lwExerciseRepository.paginate(options, partnerId);
+        const asd = await this.lwExerciseRepository.paginate(options, partnerId);
+        return;
     }
 
     public async putExercise(exerciseId: number, userId: number): Promise<any> {

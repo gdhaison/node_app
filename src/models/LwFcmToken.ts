@@ -4,21 +4,22 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { LwDiet } from "./LwDiet";
-import { LwExPartnerWeek } from "./LwExPartnerWeek";
 import { ResUsers } from "./ResUsers";
+import { ResPartner } from "./ResPartner";
 
-@Index("lw_week_pkey", ["id"], { unique: true })
-@Entity("lw_week", { schema: "public" })
-export class LwWeek {
+@Index("lw_fcm_token_pkey", ["id"], { unique: true })
+@Entity("lw_fcm_token", { schema: "public" })
+export class LwFcmToken {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "day_of_week", nullable: true })
-  dayOfWeek: string | null;
+  @Column("character varying", { name: "token" })
+  token: string;
+
+  @Column("character varying", { name: "device_id" })
+  deviceId: string;
 
   @Column("timestamp without time zone", {
     name: "create_date",
@@ -29,19 +30,19 @@ export class LwWeek {
   @Column("timestamp without time zone", { name: "write_date", nullable: true })
   writeDate: Date | null;
 
-  @OneToMany(() => LwDiet, (lwDiet) => lwDiet.lwWeek)
-  lwDiets: LwDiet[];
-
-  @OneToMany(() => LwExPartnerWeek, (lwExPartnerWeek) => lwExPartnerWeek.lwWeek)
-  lwExPartnerWeeks: LwExPartnerWeek[];
-
-  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwWeeks, {
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwFcmTokens, {
     onDelete: "SET NULL",
   })
   @JoinColumn([{ name: "create_uid", referencedColumnName: "id" }])
   createU: ResUsers;
 
-  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwWeeks2, {
+  @ManyToOne(() => ResPartner, (resPartner) => resPartner.lwFcmTokens, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn([{ name: "partner_id", referencedColumnName: "id" }])
+  partner: ResPartner;
+
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwFcmTokens2, {
     onDelete: "SET NULL",
   })
   @JoinColumn([{ name: "write_uid", referencedColumnName: "id" }])

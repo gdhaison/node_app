@@ -1,37 +1,51 @@
-import {Column, Entity, OneToMany} from "typeorm";
-import {BaseModel} from "./BaseModel";
-import {LwNewsTrace} from "./LwNewsTrace";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { ResUsers } from "./ResUsers";
+import { LwNewsTrace } from "./LwNewsTrace";
 
-@Entity({name: "lw_news"})
-export class LwNews extends BaseModel {
-    @Column({name: "id"})
-    public id: number;
+@Index("lw_news_pkey", ["id"], { unique: true })
+@Entity("lw_news", { schema: "public" })
+export class LwNews {
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
 
-    @Column({name: "title"})
-    public title: string;
+  @Column("character varying", { name: "title" })
+  title: string;
 
-    @Column({name: "description"})
-    public description: string;
+  @Column("text", { name: "description", nullable: true })
+  description: string | null;
 
-    @Column({name: "total_like"})
-    public totalLike: string;
+  @Column("timestamp without time zone", {
+    name: "create_date",
+    nullable: true,
+  })
+  createDate: Date | null;
 
-    @Column({name: "total_views"})
-    public totalViews: string;
+  @Column("timestamp without time zone", { name: "write_date", nullable: true })
+  writeDate: Date | null;
 
-    @Column({name: "create_uid"})
-    public createUid: string;
+  @Column("character varying", { name: "image_url_list", nullable: true })
+  imageUrlList: string | null;
 
-    @Column({name: "write_uid"})
-    public writeUid: number;
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwNews, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "create_uid", referencedColumnName: "id" }])
+  createU: ResUsers;
 
-    @Column({name: "write_date"})
-    public writeDate: Date;
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwNews2, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "write_uid", referencedColumnName: "id" }])
+  writeU: ResUsers;
 
-    @Column({name: "image_url_list"})
-    public imageUrlList: string;
-
-    @OneToMany(type => LwNewsTrace, lwNewsTrace => lwNewsTrace.newsId)
-    lwNewsTraces: LwNewsTrace[]
-
+  @OneToMany(() => LwNewsTrace, (lwNewsTrace) => lwNewsTrace.news)
+  lwNewsTraces: LwNewsTrace[];
 }

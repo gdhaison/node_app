@@ -40,17 +40,21 @@ export class LwExerciseRepository extends Repository<LwExercise> {
     }
 
     async paginate(options: IPaginationOptions, partnerId: number): Promise<Pagination<LwExercise>> {
-        const data = await this.entityManager.query("select lw.id as week_id, lep.exercise_id as exercise_id, lepw.finish_flag as finish_flag from lw_week lw \n" +
-            "inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id \n" +
-            "inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id  \n" +
-            "where lep.partner_id = $1", [partnerId]);
-        // if (Array.isArray(data) && data.length)
-        //     return data[0];
+        const data = await this.entityManager.query(
+            `select lw.id as week_id, lep.exercise_id as exercise_id, lepw.finish_flag as finish_flag from lw_week lw 
+            inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id 
+            inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id 
+            where lep.partner_id = $1`, [partnerId]);
+        let exerciseIds: number[] = [];
+        if (!data.length)
+            return null;
+        else
+            exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
         const queryBuilder = this.entityManager.createQueryBuilder(LwExercise, "lwe")
             .select("lwe.id")
             .addSelect("lwe.image")
             .addSelect("lwe.name")
-            .where("lwe.id in :ids", {ids: data[0]});
+            .where("lwe.id in (:...ids)", {ids: [exerciseIds[0]]});
         return paginate<LwExercise>(queryBuilder, options);
     }
 

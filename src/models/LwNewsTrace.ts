@@ -1,45 +1,57 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    PrimaryColumn,
-    UpdateDateColumn,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from "typeorm";
-import {LwNews} from "./LwNews";
-import {IsDate} from "class-validator";
+import { ResUsers } from "./ResUsers";
+import { LwNews } from "./LwNews";
+import { ResPartner } from "./ResPartner";
 
+@Index("lw_news_trace_pkey", ["id"], { unique: true })
+@Entity("lw_news_trace", { schema: "public" })
+export class LwNewsTrace {
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
 
-@Entity({name: "lw_news_trace"})
-export class LwNewsTrace{
+  @Column("boolean", { name: "read_flg" })
+  readFlg: boolean;
 
-    @PrimaryColumn({name: "news_id"})
-    public newsId: number;
+  @Column("boolean", { name: "like_flg" })
+  likeFlg: boolean;
 
-    @Column({name: "partner_id"})
-    public partnerId: number;
+  @Column("timestamp without time zone", {
+    name: "create_date",
+    nullable: true,
+  })
+  createDate: Date | null;
 
-    @Column({name: "read_flg"})
-    public readFlg: boolean;
+  @Column("timestamp without time zone", { name: "write_date", nullable: true })
+  writeDate: Date | null;
 
-    @Column({name: "like_flg"})
-    public likeFlg: boolean;
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwNewsTraces, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "create_uid", referencedColumnName: "id" }])
+  createU: ResUsers;
 
-    @Column({name: "create_uid"})
-    public createUid: string;
+  @ManyToOne(() => LwNews, (lwNews) => lwNews.lwNewsTraces, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "news_id", referencedColumnName: "id" }])
+  news: LwNews;
 
-    @Column({name: "write_uid"})
-    public writeUid: string;
+  @ManyToOne(() => ResPartner, (resPartner) => resPartner.lwNewsTraces, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "partner_id", referencedColumnName: "id" }])
+  partner: ResPartner;
 
-    @IsDate()
-    @CreateDateColumn()
-    createDate!: Date;
-
-    @IsDate()
-    @UpdateDateColumn()
-    writeDate!: Date;
-
-    @ManyToOne(type => LwNews, lwNews => lwNews.lwNewsTraces)
-    lwNews: LwNews
-
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwNewsTraces2, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "write_uid", referencedColumnName: "id" }])
+  writeU: ResUsers;
 }

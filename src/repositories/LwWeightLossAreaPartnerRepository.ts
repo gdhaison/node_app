@@ -1,19 +1,19 @@
 import {EntityManager, EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
 import {InjectManager} from "typeorm-typedi-extensions";
-import {LwWeightLossAreaPartner} from "../models/LwWeightLossAreaPartner";
+import {LwWeightlossAreaPartner} from "../models/LwWeightlossAreaPartner";
 
 @Service()
-@EntityRepository(LwWeightLossAreaPartner)
-export class LwWeightLossAreaPartnerRepository extends Repository<LwWeightLossAreaPartner> {
+@EntityRepository(LwWeightlossAreaPartner)
+export class LwWeightLossAreaPartnerRepository extends Repository<LwWeightlossAreaPartner> {
     constructor(@InjectManager() private entityManager: EntityManager) {
         super();
     }
 
-    bulkInsert(data: Partial<LwWeightLossAreaPartner>[]) {
+    bulkInsert(data: Partial<LwWeightlossAreaPartner>[]) {
         return this.createQueryBuilder()
             .insert()
-            .into(LwWeightLossAreaPartner)
+            .into(LwWeightlossAreaPartner)
             .values(data)
             .execute();
     };

@@ -1,5 +1,5 @@
 import {Service} from "typedi";
-import {Users, ResPartner, LwFood} from "../models";
+import {ResPartner} from "../models";
 import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {ResPartnerRepository} from "../repositories/ResPartnerRepository";
@@ -13,9 +13,9 @@ import {UserChangePasswordRequest} from "../models/dto/UserChangePasswordRequest
 import {WrongPasswordErrors} from "../api/errors/WrongPasswordErros";
 import {StatusCodes} from "http-status-codes";
 import {LwWeightLossAreaPartnerRepository} from "../repositories/LwWeightLossAreaPartnerRepository";
-import {LwWeightLossAreaPartner} from "../models/LwWeightLossAreaPartner";
+import {LwWeightlossAreaPartner} from "../models/LwWeightlossAreaPartner";
 import {LwWeightLossAreaRepository} from "../repositories/LwWeightLossAreaRepository";
-import {LwWeightLossArea} from "../models/LwWeightLossArea";
+import {LwWeightlossArea} from "../models/LwWeightlossArea";
 
 
 @Service()
@@ -23,7 +23,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
     constructor(@OrmRepository() private _resPartnerRepository: ResPartnerRepository,
                 @OrmRepository() private _lwWeightLossAreaPartnerRepository: LwWeightLossAreaPartnerRepository,
                 @OrmRepository() private _lwWeightLossAreaRepository: LwWeightLossAreaRepository) {
-        super(Users);
+        super(ResPartner);
     }
 
     public async getAll(): Promise<ResPartner[] | undefined> {
@@ -75,13 +75,13 @@ export class ResPartnerService extends BaseService<ResPartner> {
             payload.displayName = user.name;
         }
         if (user.password) {
-            payload.password = await argon2.hash(user.password, {salt});
+            payload.xLwPassword = await argon2.hash(user.password, {salt});
         }
         if (user.dob) {
-            payload.dob = new Date(user.dob);
+            payload.xLwDob = new Date(user.dob);
         }
         if (user.gender) {
-            payload.gender = user.gender;
+            payload.xLwGender = user.gender;
         }
         if (user.phone) {
             payload.phone = user.phone;
@@ -90,13 +90,13 @@ export class ResPartnerService extends BaseService<ResPartner> {
             payload.address = user.address;
         }
         if (user.height) {
-            payload.height = user.height;
+            payload.xLwWeight = user.height;
         }
         if (user.weight) {
-            payload.weight = user.weight;
+            payload.xLwExpectedWeight = user.weight;
         }
         if (user.target_weight) {
-            payload.targetWeight = user.target_weight;
+            payload.xLwWeight = user.target_weight;
         }
         if (user.physical) {
             payload.physical = user.physical;
@@ -104,16 +104,20 @@ export class ResPartnerService extends BaseService<ResPartner> {
         payload.createDate = new Date();
         payload.writeDate = new Date();
 
-        const muscleData: Partial<LwWeightLossAreaPartner>[] = [];
-        const lwWeightLossAreaPartner: Partial<LwWeightLossAreaPartner> = {};
+        const muscleData: Partial<LwWeightlossAreaPartner>[] = [];
+        const lwWeightLossAreaPartner: Partial<LwWeightlossAreaPartner> = {};
         const now = new Date();
         const userDb = await this._resPartnerRepository.save(payload);
 
         const weightLossArea = await this._lwWeightLossAreaRepository.getByName(user.muscle);
+        const resPartner = new ResPartner();
+        resPartner.id = userDb.id;
+        const lwWeightLossArea = new LwWeightlossArea();
 
-        weightLossArea.forEach((item: LwWeightLossArea) => {
-            lwWeightLossAreaPartner.partnerId = userDb.id;
-            lwWeightLossAreaPartner.weightLossAreaId = item.id;
+        weightLossArea.forEach((item: LwWeightlossArea) => {
+            lwWeightLossArea.id = item.id;
+            lwWeightLossAreaPartner.partner = resPartner;
+            lwWeightLossAreaPartner.weightlossArea = lwWeightLossArea;
             lwWeightLossAreaPartner.active = true;
             lwWeightLossAreaPartner.createDate = now;
             lwWeightLossAreaPartner.writeDate = now;
@@ -125,7 +129,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
 
     public async changePassword(userInfo: UserChangePasswordRequest, user: ResPartner): Promise<ResPartner> {
         const {old_pass, new_pass} = userInfo;
-        const oldPassVerify = await argon2.verify(user.password, old_pass);
+        const oldPassVerify = await argon2.verify(user.xLwPassword, old_pass);
 
         if (!oldPassVerify) {
             throw new WrongPasswordErrors(StatusCodes.UNAUTHORIZED);
@@ -134,7 +138,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         const salt = randomBytes(32);
         const password= await argon2.hash(new_pass, {salt});
         if (userInfo.new_pass) {
-            user.password = password;
+            user.xLwPassword = password;
         }
         user.writeDate = new Date();
         return this._resPartnerRepository.save(user);

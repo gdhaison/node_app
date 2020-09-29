@@ -85,7 +85,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         const data = await this.entityManager.query(`SELECT lf.id, lf.image, lf.name, lf.calo, lfs.like_flag as is_like, 
             (SELECT COUNT(1) FROM lw_food_star lfs2 WHERE lfs2.res_partner_id = ${partnerId} AND lfs2.like_flag = 1 AND lfs2.food_id = lf.id)::INTEGER AS heart, 
             lfs.star as user_star, (select round(avg(lfs1.star)) from lw_food_star lfs1 where lfs1.food_id = lf.id)::INTEGER as star_avg 
-            , lf.description FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id WHERE lf.id = ${id} and lfs.res_partner_id = ${partnerId}`);
+            , lf.description FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id and and lfs.res_partner_id = ${partnerId} WHERE lf.id = ${id}`);
         if (Array.isArray(data) && data.length)
             return data[0];
         throw new FoodNotFoundError(ErrorCode.FOOD_NOT_FOUND);
@@ -155,8 +155,10 @@ export class LwFoodRepository extends Repository<LwFood> {
     }
 
     async changeFood(data: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[], foodDeleteIds: number[]): Promise<any> {
-        const deleteResponse = await this.entityManager.delete(LwFoodMenuPartner, foodDeleteIds);
-        logger.info(`Delete all food menu ids: ${deleteResponse}`);
+        if(foodDeleteIds && foodDeleteIds.length > 0){
+            const deleteResponse = await this.entityManager.delete(LwFoodMenuPartner, foodDeleteIds);
+            logger.info(`Delete all food menu ids: ${deleteResponse}`);
+        }
         return await this.createQueryBuilder()
             .createQueryBuilder()
             .insert()

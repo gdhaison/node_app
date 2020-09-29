@@ -1,34 +1,61 @@
-import {Column, Entity, OneToMany} from "typeorm";
-import {BaseModel} from "./BaseModel";
-import {LwFoodLwMenuRel} from "./LwFoodLwMenuRel";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { ResUsers } from "./ResUsers";
 
-@Entity({name: "lw_food"})
-export class LwFood extends BaseModel {
+@Index("lw_food_pkey", ["id"], { unique: true })
+@Entity("lw_food", { schema: "public" })
+export class LwFood {
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
 
-    @Column({name: "name"})
-    public name: string;
+  @Column("character varying", { name: "name" })
+  name: string;
 
-    @Column({name: "image"})
-    public image: string;
+  @Column("double precision", { name: "calo", precision: 53 })
+  calo: number;
 
-    @Column({name: "calo"})
-    public calo: number;
+  @Column("text", { name: "description", nullable: true })
+  description: string | null;
 
-    @Column({name: "description"})
-    public description: string;
+  @Column("integer", { name: "total_like" })
+  totalLike: number;
 
-    @Column({name: "total_like"})
-    public totalLike: number;
+  @Column("character varying", { name: "recommend_level", nullable: true })
+  recommendLevel: string | null;
 
-    @Column({name: "recommend_level"})
-    public recommendLevel: string;
+  @Column("double precision", { name: "prepare_time", precision: 53 })
+  prepareTime: number;
 
-    @Column({name: "prepare_time"})
-    public prepareTime: number;
+  @Column("double precision", { name: "cooking_time", precision: 53 })
+  cookingTime: number;
 
-    @Column({name: "cooking_time"})
-    public cookingTime: number;
+  @Column("timestamp without time zone", {
+    name: "create_date",
+    nullable: true,
+  })
+  createDate: Date | null;
 
-    @OneToMany(type => LwFoodLwMenuRel, lwFoodLwMenu => lwFoodLwMenu.lwFood)
-    relFoodMenu: LwFoodLwMenuRel
+  @Column("timestamp without time zone", { name: "write_date", nullable: true })
+  writeDate: Date | null;
+
+  @Column("character varying", { name: "image", nullable: true })
+  image: string | null;
+
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwFoods, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "create_uid", referencedColumnName: "id" }])
+  createU: ResUsers;
+
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwFoods2, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "write_uid", referencedColumnName: "id" }])
+  writeU: ResUsers;
 }

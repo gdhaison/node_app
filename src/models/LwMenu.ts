@@ -1,13 +1,36 @@
-import {Column, Entity, OneToMany} from "typeorm";
-import {BaseModel} from "./BaseModel";
-import {LwDiet} from "./LwDiet";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { LwFoodLwMenuRel } from "./LwFoodLwMenuRel";
 
-@Entity({name: "lw_week"})
-export class LwMenu extends BaseModel {
-    @Column({name: "day_of_week"})
-    public dayOfWeek: string;
+@Index("lw_menu_pkey", ["id"], { unique: true })
+@Entity("lw_menu", { schema: "public" })
+export class LwMenu {
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
 
-    @OneToMany(type => LwDiet, lwDiet => lwDiet.lwMenu)
-    lwdiets: LwDiet
+  @Column("character varying", { name: "name" })
+  name: string;
 
+  @Column("double precision", { name: "total_kcal", precision: 53 })
+  totalKcal: number;
+
+  @Column("timestamp without time zone", {
+    name: "create_date",
+    nullable: true,
+  })
+  createDate: Date | null;
+
+  @Column("timestamp without time zone", { name: "write_date", nullable: true })
+  writeDate: Date | null;
+
+  @Column("character varying", { name: "code", nullable: true })
+  code: string | null;
+
+  @OneToMany(() => LwFoodLwMenuRel, (lwFoodLwMenuRel) => lwFoodLwMenuRel.lwMenu)
+  lwFoodLwMenuRels: LwFoodLwMenuRel[];
 }

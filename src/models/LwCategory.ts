@@ -1,13 +1,36 @@
-import {Column, Entity, Unique, PrimaryGeneratedColumn, OneToMany} from "typeorm";
-import {BaseModel} from "./BaseModel";
-import {LwFood} from "./LwFood";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { LwVideoCategory } from "./LwVideoCategory";
 
-@Entity({name: "lw_category"})
-export class LwCategory extends BaseModel {
+@Index("lw_food_category_pkey", ["id"], { unique: true })
+@Entity("lw_category", { schema: "public" })
+export class LwCategory {
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
 
-    @Column({name: "name"})
-    public name: string;
+  @Column("character varying", { name: "name" })
+  name: string;
 
-    @Column({name: "code"})
-    public code: string;
+  @Column("character varying", { name: "code" })
+  code: string;
+
+  @Column("timestamp without time zone", {
+    name: "create_date",
+    nullable: true,
+  })
+  createDate: Date | null;
+
+  @Column("timestamp without time zone", { name: "write_date", nullable: true })
+  writeDate: Date | null;
+
+  @OneToMany(
+    () => LwVideoCategory,
+    (lwVideoCategory) => lwVideoCategory.category
+  )
+  lwVideoCategories: LwVideoCategory[];
 }

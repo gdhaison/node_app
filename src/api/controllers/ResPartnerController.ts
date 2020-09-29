@@ -90,11 +90,11 @@ export class ResPartnerController {
                 phone: result.phone,
                 avatar: location,
                 address: result.address,
-                dob: result.dob,
-                gender: result.gender,
-                height: result.height,
-                weight: result.weight,
-                target_weight: result.targetWeight,
+                dob: result.xLwDob,
+                gender: result.xLwGender,
+                height: result.xLwHeight,
+                weight: result.xLwWeight,
+                target_weight: result.xLwExpectedWeight,
                 physical: result.physical,
                 muscle: result.muscle,
             };
@@ -119,7 +119,7 @@ export class ResPartnerController {
                 status: StatusCodes.NOT_FOUND,
             };
         }
-        const validPassword = await argon2.verify(userLogin.password, password);
+        const validPassword = await argon2.verify(userLogin.xLwPassword, password);
         if (!validPassword) {
             res.status(StatusCodes.UNAUTHORIZED);
             return {
@@ -139,11 +139,11 @@ export class ResPartnerController {
             phone: `${userLogin.phone}`,
             avatar: `${userLogin.avatar}`,
             address: `${userLogin.address}`,
-            dob: userLogin.dob,
-            gender: userLogin.gender,
-            height: userLogin.height,
-            weight: userLogin.weight,
-            target_weight: userLogin.targetWeight,
+            dob: userLogin.xLwDob,
+            gender: userLogin.xLwGender,
+            height: userLogin.xLwHeight,
+            weight: userLogin.xLwWeight,
+            target_weight: userLogin.xLwExpectedWeight,
             physical: `${userLogin.physical}`,
             muscle: `${userLogin.muscle}`,
         };

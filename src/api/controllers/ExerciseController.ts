@@ -21,7 +21,7 @@ export class ExerciseController {
                         @QueryParam("page") page: number,
                         @QueryParam("page_size") pageSize: number,
                         @Req() req: express.Request, @Res() res: express.Response) {
-        return this._exerciseService.paginate({page: page, limit: pageSize}, user.id);
+        return this._exerciseService.paginate({page: page ? page : 1, limit: pageSize ? pageSize : 10}, user.id);
     }
 
     @Get("/area")

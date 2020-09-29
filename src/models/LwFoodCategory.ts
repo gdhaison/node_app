@@ -1,14 +1,14 @@
-import {Column, Entity, PrimaryColumn} from "typeorm";
+import { Column, Entity, Index } from "typeorm";
 
-@Entity({name: "lw_food_category"})
+@Index("lw_food_category_pkey1", ["categoryCode", "foodId"], { unique: true })
+@Entity("lw_food_category", { schema: "public" })
 export class LwFoodCategory {
-    @PrimaryColumn()
-    public foodId: number;
+  @Column("bigint", { primary: true, name: "food_id" })
+  foodId: number;
 
-    @Column({name: "category_code"})
-    public categoryCode: string;
+  @Column("character varying", { primary: true, name: "category_code" })
+  categoryCode: string;
 
-    @Column({name: "partner_id"})
-    public partnerId: number;
-
+  @Column("bigint", { name: "partner_id ", nullable: true })
+  partnerId: number | null;
 }

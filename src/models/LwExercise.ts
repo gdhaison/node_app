@@ -1,40 +1,101 @@
-import {BaseModel} from "./BaseModel";
-import {} from "typeorm";
-import {Entity, Column} from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { ResUsers } from "./ResUsers";
+import { LwExerciseLwWeightlossAreaRel } from "./LwExerciseLwWeightlossAreaRel";
+import { LwExercisePartner } from "./LwExercisePartner";
 
-@Entity({name: "lw_exercise"})
-export class LwExercise extends BaseModel {
+@Index("lw_exercise_pkey", ["id"], { unique: true })
+@Entity("lw_exercise", { schema: "public" })
+export class LwExercise {
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
 
-    @Column({name: "name"})
-    public name: string;
+  @Column("character varying", { name: "name" })
+  name: string;
 
-    @Column({name: "duration"})
-    public duration: number;
+  @Column("integer", { name: "duration" })
+  duration: number;
 
-    @Column({name: "description"})
-    public description: string;
+  @Column("text", { name: "description" })
+  description: string;
 
-    @Column({name: "image"})
-    public image: string;
+  @Column("double precision", { name: "kcal", nullable: true, precision: 53 })
+  kcal: number | null;
 
-    @Column({name: "video"})
-    public video: string;
+  @Column("double precision", {
+    name: "min_weight",
+    nullable: true,
+    precision: 53,
+  })
+  minWeight: number | null;
 
-    @Column({name: "kcal"})
-    public kcal: number;
+  @Column("double precision", {
+    name: "max_weight",
+    nullable: true,
+    precision: 53,
+  })
+  maxWeight: number | null;
 
-    @Column({name: "min_weight"})
-    public min_weight: number;
+  @Column("double precision", {
+    name: "min_height",
+    nullable: true,
+    precision: 53,
+  })
+  minHeight: number | null;
 
-    @Column({name: "max_weight"})
-    public max_weight: number;
+  @Column("double precision", {
+    name: "max_height",
+    nullable: true,
+    precision: 53,
+  })
+  maxHeight: number | null;
 
-    @Column({name: "min_height"})
-    public min_height: number;
+  @Column("boolean", { name: "fixed" })
+  fixed: boolean;
 
-    @Column({name: "max_height"})
-    public max_height: number;
+  @Column("timestamp without time zone", {
+    name: "create_date",
+    nullable: true,
+  })
+  createDate: Date | null;
 
-    @Column({name: "fixed"})
-    public fixed: number;
+  @Column("timestamp without time zone", { name: "write_date", nullable: true })
+  writeDate: Date | null;
+
+  @Column("character varying", { name: "image", nullable: true })
+  image: string | null;
+
+  @Column("character varying", { name: "video", nullable: true })
+  video: string | null;
+
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwExercises, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "create_uid", referencedColumnName: "id" }])
+  createU: ResUsers;
+
+  @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwExercises2, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn([{ name: "write_uid", referencedColumnName: "id" }])
+  writeU: ResUsers;
+
+  @OneToMany(
+    () => LwExerciseLwWeightlossAreaRel,
+    (lwExerciseLwWeightlossAreaRel) => lwExerciseLwWeightlossAreaRel.lwExercise
+  )
+  lwExerciseLwWeightlossAreaRels: LwExerciseLwWeightlossAreaRel[];
+
+  @OneToMany(
+    () => LwExercisePartner,
+    (lwExercisePartner) => lwExercisePartner.exercise
+  )
+  lwExercisePartners: LwExercisePartner[];
 }

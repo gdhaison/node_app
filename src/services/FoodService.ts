@@ -3,30 +3,32 @@ import {LwFood} from "../models/LwFood";
 import {BaseService} from "./BaseService";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwFoodRepository} from "../repositories/LwFoodRepository";
+import {LwFoodMenuPartnerRepository} from "../repositories/LwFoodMenuPartnerRepository";
 import {FoodCreateRequest} from "../models/dto/FoodCreateRequest";
 import {RatingRequest} from "../models/dto/RatingRequest";
 
 @Service()
 export class LwFoodService extends BaseService<LwFood> {
-    constructor(@OrmRepository() private lwfoodRepository: LwFoodRepository, ) {
+    constructor(@OrmRepository() private lwFoodRepository: LwFoodRepository,
+                @OrmRepository() private lwFoodMenuPartnerRepository: LwFoodMenuPartnerRepository) {
         super(LwFood);
     }
 
     public search(name: string, category: string, page: number = 1, limit: number = 10, user_id: number):
         Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
-        return this.lwfoodRepository.findByNameAndCategory(name, category, page, limit, user_id);
+        return this.lwFoodRepository.findByNameAndCategory(name, category, page, limit, user_id);
     }
 
     public async getById(id: number, partnerId: number): Promise<any> {
-        return this.lwfoodRepository.getById(id, partnerId);
+        return this.lwFoodRepository.getById(id, partnerId);
     }
 
     public async rating(rating: RatingRequest, resPartnerId: number): Promise<any> {
-        return this.lwfoodRepository.rating(rating, resPartnerId);
+        return this.lwFoodRepository.rating(rating, resPartnerId);
     }
 
     public async like(foodId: number, resPartnerId: number, likeFlag: number) {
-        return this.lwfoodRepository.like(foodId, resPartnerId, likeFlag);
+        return this.lwFoodRepository.like(foodId, resPartnerId, likeFlag);
     }
 
     public async changeFood(data: any) {
@@ -42,7 +44,7 @@ export class LwFoodService extends BaseService<LwFood> {
                     dayOfWeek: data.dow
                 });
             });
-        return this.lwfoodRepository.changeFood(foodCategoryArr, foodDeleteIds);
+        return this.lwFoodRepository.changeFood(foodCategoryArr, foodDeleteIds);
     }
 
     public async create(food: Partial<FoodCreateRequest>, image: string): Promise<LwFood> {
@@ -65,23 +67,22 @@ export class LwFoodService extends BaseService<LwFood> {
         payload.totalLike = 0;
         payload.prepareTime = 0;
         payload.cookingTime = 0;
-        return this.lwfoodRepository.save(payload);
+        return this.lwFoodRepository.save(payload);
     }
 
-
-    public getFoodByDate(date: string, menu: string, user_id: number, page: number = 1, limit: number = 10):
+    public async getFoodByDate(date: string, menu: string, user_id: number, page: number = 1, limit: number = 10):
         Promise<any> {
-        return this.lwfoodRepository.findFoodByDateCategory(date, menu, user_id, page, limit);
+        return this.lwFoodRepository.findFoodByDateCategory(date, menu, user_id, page, limit);
     }
 
     public getOtherFood(category: string, page: number = 1, limit: number = 10, user_id: number): Promise<any>
     {
-        return this.lwfoodRepository.findFoodByCategory(category, page, limit, user_id);
+        return this.lwFoodRepository.findFoodByCategory(category, page, limit, user_id);
     }
 
     public finishDiet(menuCode: string, dow: string, userId: number): Promise<any>
     {
-        return this.lwfoodRepository.finishDiet(menuCode, dow, userId);
+        return this.lwFoodRepository.finishDiet(menuCode, dow, userId);
     }
 
 }
