@@ -10,6 +10,9 @@ import {
 import { ResUsers } from "./ResUsers";
 import { LwExerciseLwWeightlossAreaRel } from "./LwExerciseLwWeightlossAreaRel";
 import { LwExercisePartner } from "./LwExercisePartner";
+import {LwExerciseVideo} from "./LwExerciseVideo";
+import {JoinTable, ManyToMany} from "typeorm";
+import {LwVideo} from "./LwVideo";
 
 @Index("lw_exercise_pkey", ["id"], { unique: true })
 @Entity("lw_exercise", { schema: "public" })
@@ -98,4 +101,15 @@ export class LwExercise {
     (lwExercisePartner) => lwExercisePartner.exercise
   )
   lwExercisePartners: LwExercisePartner[];
+
+  @OneToMany(
+      () => LwExerciseVideo,
+      (lwExerciseVideo) => lwExerciseVideo.exercise,
+      {eager: true}
+  )
+  lwExerciseVideos: LwExerciseVideo[];
+
+  @ManyToMany(type => LwVideo)
+  @JoinTable()
+  lwVideos: LwVideo[];
 }

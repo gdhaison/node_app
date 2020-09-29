@@ -8,19 +8,24 @@ import {UserNotFoundError} from "../api/errors/UserNotFoundError";
 import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
 import {AreaNotFoundError} from "../api/errors/AreaNotFoundError";
+import {LwExerciseVideoRepository} from "../repositories/LwExerciseVideoRepository";
+import {LwVideoRepository} from "../repositories/LwVideoRepository";
 
 @Service()
 export class ExerciseService extends BaseService<LwExercise> {
-    constructor(@OrmRepository() private lwExerciseRepository: LwExerciseRepository) {
+    constructor(@OrmRepository() private lwExerciseRepository: LwExerciseRepository,
+                @OrmRepository() private lwExerciseVideoRepository: LwExerciseVideoRepository,
+                @OrmRepository() private lwVideoRepository: LwVideoRepository) {
         super(LwExercise);
     }
 
-    public async getById(id: number): Promise<any> {
-        return this.lwExerciseRepository.findOne(id);
+    public async getById(id: number, page: number = 1, pageSize: number = 10): Promise<any> {
+        // return this.lwExerciseRepository.findOne(id, { relations: ["lwExerciseVideos"] });
+        return await this.lwVideoRepository.findByExerciseId(id, page, pageSize);
     }
 
-    async paginate(options: IPaginationOptions, partnerId: number): Promise<Pagination<LwExercise>> {
-        return await this.lwExerciseRepository.paginate(options, partnerId);
+    async paginate(options: IPaginationOptions, partnerId: number, dayOfWeek: string): Promise<Pagination<LwExercise>> {
+        return await this.lwExerciseRepository.paginate(options.page, options.limit, partnerId, dayOfWeek);
     }
 
     public async putExercise(exerciseId: number, userId: number): Promise<any> {
@@ -44,5 +49,4 @@ export class ExerciseService extends BaseService<LwExercise> {
        }
        throw new AreaNotFoundError("404");
     }
-
 }

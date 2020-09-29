@@ -4,7 +4,6 @@ import {InjectManager} from "typeorm-typedi-extensions";
 import {LwExercise} from "../models/LwExercise";
 import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
-import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
 import {PageNotFound} from "../api/errors/PageNotFound";
 
 @Service()
@@ -39,21 +38,37 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         return parseInt(exCount[0]["count"]);
     }
 
-    async paginate(options: IPaginationOptions, partnerId: number): Promise<Pagination<LwExercise>> {
+    async paginate(page: number, limit: number, partnerId: number, dayOfWeek: string): Promise<any> {
         const data = await this.entityManager.query(
             `select lw.id as week_id, lep.exercise_id as exercise_id, lepw.finish_flag as finish_flag from lw_week lw 
             inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id 
             inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id 
-            where lep.partner_id = $1`, [partnerId]);
+            where lep.partner_id = $1 AND lw.day_of_week = $2`, [partnerId, dayOfWeek]);
         let exerciseIds: number[] = [];
-        if (!data.length)
-            return null;
-        else
-            exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
-        const queryBuilder = this.entityManager.createQueryBuilder(LwExercise, "lwe")
-            .select()
-            .where("lwe.id in (:...ids)", {ids: [exerciseIds[0]]});
-        return paginate<LwExercise>(queryBuilder, options);
+        exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
+        const total = data.length;
+        let nextPage = true;
+        const from = ((page - 1) * limit);
+        const to = page * limit;
+        if (to >= total)
+            nextPage = false;
+        let result = {};
+        if (data.length > 0) {
+            result = await this.entityManager.query(`SELECT lwe.id, lwe.image, lwe.name, 
+            (SELECT finish_flag FROM lw_ex_partner_week lepw INNER JOIN lw_exercise_video lev ON lev.video_id = lv.id where lev.exercise_id = lwe.id) as is_finished, 
+            (SELECT count(1) FROM lw_video lv INNER JOIN lw_exercise_video lev ON lev.video_id = lv.id where lev.exercise_id = lwe.id) as total_items 
+            FROM lw_exercise lwe INNER JOIN lw_exercise_video lev ON lev.exercise_id = lwe.id 
+            WHERE lwe.id IN (${exerciseIds}) GROUP BY lwe.id LIMIT $1 OFFSET $2`, [limit, from]);
+        }
+        return {
+            data: result,
+            page,
+            limit,
+            from: from + 1,
+            to,
+            total,
+            nextPage
+        };
     }
 
     async getByArea(area: string, page: number, limit: number): Promise<any> {
@@ -66,21 +81,19 @@ export class LwExerciseRepository extends Repository<LwExercise> {
 
         const count = await this.entityManager.query("SELECT COUNT(*) " + query);
         const total = parseInt(count[0]["count"]);
-        const total_page = Math.ceil(total/limit);
+        const total_page = Math.ceil(total / limit);
         let to = 0;
         let nextPage = true;
-        if (total > page*limit) {
-            to = page*limit;
-        }
-        else if ( page > total_page && total_page != 0) {
+        if (total > page * limit) {
+            to = page * limit;
+        } else if (page > total_page && total_page != 0) {
             throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
-        }
-        else{
+        } else {
             to = total;
             nextPage = false;
         }
 
-        const result = await this.entityManager.query(select_query + query + "LIMIT "+ limit +" OFFSET " + skippedItems);
+        const result = await this.entityManager.query(select_query + query + "LIMIT " + limit + " OFFSET " + skippedItems);
 
         const data = {
             data: result,
@@ -93,5 +106,13 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         };
 
         return data;
+    }
+
+    async findById(id: number): Promise<any> {
+        const result = await this.entityManager.query(
+            `SELECT le.id, le.name, le.image
+             FROM lw_exercise le WHERE le.id = ${id} `
+        );
+        return result[0];
     }
 }
