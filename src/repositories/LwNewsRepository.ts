@@ -7,7 +7,7 @@ import {ResPartner} from "../models";
 @Service()
 @EntityRepository(LwNews)
 export class LwNewsRepository extends Repository<LwNews> {
-    async getNewsDetail(newsId: number, userId: number): Promise<LwNews> {
+    async getNewsDetail(newsId: number, userId: number): Promise<LwNews[]> {
 
         const data = await this.query(`select ln2.id ,
              ln2.image_url_list,
@@ -112,8 +112,8 @@ export class LwNewsRepository extends Repository<LwNews> {
                     [ "partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
                 .values(
                     {
-                        partner: resPartner,
-                        news: lwNews,
+                        "partner": userId,
+                        "news": newsId,
                         likeFlg: true,
                         readFlg: true,
                         createDate: now,

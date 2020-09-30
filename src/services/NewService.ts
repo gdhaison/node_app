@@ -18,7 +18,7 @@ export class LwNewService extends BaseService<LwNews> {
         await this.view(newsId, userId);
         const response =  await this.lwNewsRepository.getNewsDetail(newsId, userId);
         if (response) {
-            return response;
+            return response[0];
         } else {
             throw new NewsErrors(404);
         }
