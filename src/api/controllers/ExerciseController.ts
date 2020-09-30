@@ -1,4 +1,4 @@
-import {Get, Put, JsonController, QueryParam} from "routing-controllers";
+import {Get, Put, JsonController, QueryParam, Body} from "routing-controllers";
 import express from "express";
 import {Param} from "routing-controllers/decorator/Param";
 import {Req} from "routing-controllers/decorator/Req";
@@ -51,4 +51,14 @@ export class ExerciseController {
         return this._exerciseService.putExercise(exercise_id, userId);
     }
 
+
+    @Put("/muscle")
+    public async putMuscle(
+        @CurrentUser({required: true}) user: ResPartner,
+        @Body() data: any):
+        Promise<any>
+    {
+        const userId = user.id;
+        return this._exerciseService.putMuscle(userId, data.muscles);
+    }
 }

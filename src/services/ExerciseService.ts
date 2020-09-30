@@ -50,4 +50,9 @@ export class ExerciseService extends BaseService<LwExercise> {
        }
        throw new AreaNotFoundError("404");
     }
+
+    public async putMuscle(userId: number, muscle: Array<string> = []): Promise<any> {
+        return this.lwExerciseRepository.putMuscle(userId, muscle);
+    }
+
 }

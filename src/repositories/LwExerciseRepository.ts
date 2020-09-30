@@ -5,6 +5,7 @@ import {LwExercise} from "../models";
 import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
 import {PageNotFound} from "../api/errors/PageNotFound";
+import {StatusCodes} from "http-status-codes";
 
 @Service()
 @EntityRepository(LwExercise)
@@ -124,11 +125,15 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         return result[0];
     }
 
-    async findById(id: number): Promise<any> {
-        const result = await this.entityManager.query(
-            `SELECT le.id, le.name, le.image
-             FROM lw_exercise le WHERE le.id = ${id} `
-        );
-        return result[0];
+    async putMuscle(userId: number, muscle: Array<string>) {
+        const del = await this.entityManager.query(`Delete from lw_weightloss_area_partner lwap
+            where lwap.partner_id = ${userId}
+        `);
+        for( const i in muscle) {
+           this.entityManager.query(`Insert into lw_weightloss_area_partner (partner_id, weightloss_area_id, active)
+                              values (${userId}, (select lwa.id from lw_weightloss_area lwa where lwa.name = '${muscle[i]}'),
+                              true )`);
+        }
+        return {"status": StatusCodes.OK};
     }
 }
