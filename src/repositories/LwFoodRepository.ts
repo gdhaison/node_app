@@ -1,4 +1,4 @@
-import {DeleteResult, EntityManager, EntityRepository, getConnection, Repository} from "typeorm";
+import {EntityManager, EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
 import {LwFood} from "../models/LwFood";
 import {InjectManager} from "typeorm-typedi-extensions";
@@ -83,9 +83,11 @@ export class LwFoodRepository extends Repository<LwFood> {
     async getById(id: number, partnerId: number): Promise<any> {
         // const data = this.entityManager.query("SELECT lf.name FROM lw_food AS lf WHERE lf.name = $1 AND lf.lastName = $2", ["John", "Doe"]);
         const data = await this.entityManager.query(`SELECT lf.id, lf.image, lf.name, lf.calo, lfs.like_flag as is_like, lfs.star as user_star, lf.description, 
-            (SELECT COUNT(1) FROM lw_food_star lfs2 WHERE lfs2.res_partner_id = ${partnerId} AND lfs2.like_flag = 1 AND lfs2.food_id = lf.id)::INTEGER AS heart, 
+            (SELECT COUNT(1) FROM lw_food_star lfs2 WHERE lfs2.like_flag = 1 AND lfs2.food_id = lf.id)::INTEGER AS heart, 
             (select round(avg(lfs1.star)) from lw_food_star lfs1 where lfs1.food_id = lf.id)::INTEGER as star_avg 
-            FROM lw_food AS lf left join lw_food_star lfs on lfs.food_id = lf.id and lfs.res_partner_id = ${partnerId} WHERE lf.id = ${id}`);
+            FROM lw_food AS lf 
+            left join lw_food_star lfs on lfs.food_id = lf.id and lfs.res_partner_id = ${partnerId} 
+            WHERE lf.id = ${id}`);
         if (Array.isArray(data) && data.length)
             return data[0];
         throw new FoodNotFoundError(ErrorCode.FOOD_NOT_FOUND);
@@ -106,11 +108,14 @@ export class LwFoodRepository extends Repository<LwFood> {
                 .andWhere("resPartnerId = :partner_id", {partner_id: resPartnerId})
                 .execute();
         } else {
-            return this.entityManager.save(LwFoodStar, {
-                foodId: rating.food_id,
-                resPartnerId: resPartnerId,
-                star: rating.star
-            });
+            return await this.createQueryBuilder()
+                .insert()
+                .into(LwFoodStar)
+                .values({
+                    foodId: rating.food_id,
+                    resPartnerId: resPartnerId,
+                    star: rating.star
+                }).execute();
         }
     }
 
@@ -154,10 +159,18 @@ export class LwFoodRepository extends Repository<LwFood> {
         }
     }
 
-    async changeFood(data: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[], foodDeleteIds: number[]): Promise<any> {
-        if(foodDeleteIds && foodDeleteIds.length > 0){
-            const deleteResponse = await this.entityManager.delete(LwFoodMenuPartner, foodDeleteIds);
+    async changeFood(data: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[], foodDeleteIds: number[], partnerId: number): Promise<any> {
+        if (foodDeleteIds && foodDeleteIds.length > 0) {
+            const deleteResponse = await this.createQueryBuilder()
+                .delete()
+                .from(LwFoodMenuPartner)
+                .where("food_id IN (:...idFoods)", {idFoods: foodDeleteIds})
+                .andWhere("partner_id = :idUser", {idUser: partnerId})
+                .execute();
             logger.info(`Delete all food menu ids: ${deleteResponse}`);
+        }
+        if (!data || data.length <= 0) {
+            return null;
         }
         return await this.createQueryBuilder()
             .createQueryBuilder()
@@ -177,11 +190,10 @@ export class LwFoodRepository extends Repository<LwFood> {
 
         const skippedItems = (page - 1) * limit;
         const select_query =
-            `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,(select lfs.star from lw_food_star
-             lfs where lfs.res_partner_id = ${user_id} and lfs.food_id = lf.id) AS user_star,
-            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id}  AND lfs.like_flag = 1 
-            AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs 
-            where lfs.food_id = lf.id)::INTEGER AS star `;
+            `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,
+            (select lfs.star from lw_food_star lfs where lfs.res_partner_id = ${user_id} and lfs.food_id = lf.id) AS user_star,
+            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.like_flag = 1 AND lfs.food_id = lf.id)::INTEGER AS heart,
+            (SELECT round(AVG(lfs.star)) FROM lw_food_star lfs  where lfs.food_id = lf.id)::INTEGER AS star `;
         const count_food_cate_partner = await this.entityManager.query(`Select count(*) from lw_food_menu_partner lfmp
             where lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week = '${date}'`);
         let query = "";
@@ -283,9 +295,13 @@ export class LwFoodRepository extends Repository<LwFood> {
     }
 
     public async finishDiet(menuCode: string, dow: string, userId: number): Promise<any> {
-        const diet = await this.entityManager.query(`Select ld.id from lw_diet ld inner join lw_menu lm
-            on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '${dow}'
-            and lm.code = '${menuCode}' and ld.partner_id = ${userId}`);
+        const diet = await this.entityManager.query(`Select lfmp.id from lw_food_menu_partner lfmp 
+                    inner join lw_menu lm on lm.code = lfmp.menu_code 
+                    inner join lw_week lw on lw.day_of_week = lfmp.day_of_week 
+                    where lw.day_of_week = $1 
+                    and lm.code = $2 
+                    and lfmp.partner_id = $3`, [dow, menuCode, userId]);
+
         const diet_id = parseInt(diet[0]["id"]);
         const date = new Date().toISOString();
         return await this.entityManager

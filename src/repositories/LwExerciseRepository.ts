@@ -51,25 +51,39 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         const to = page * limit;
         if (to >= total)
             nextPage = false;
-        let result = {};
+        let result = [];
         if (data.length > 0) {
             const exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
+            // result = await this.entityManager.query(`
+            // SELECT
+            // LWE.ID, LWE.IMAGE, LWE.NAME,
+            // (
+            //     select lepw.finish_flag as finish_flag from lw_week lw
+            //     inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id
+            //     inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id
+            //     where lep.partner_id = $3 AND lw.day_of_week = $4 and lepw.create_date = $5
+            // ) AS is_finished,
+            // (select COUNT(1) from LW_VIDEO LV INNER JOIN LW_EXERCISE_VIDEO LEV ON LEV.VIDEO_ID = LV.ID WHERE LEV.EXERCISE_ID = LWE.ID) AS TOTAL_ITEMS
+            // FROM LW_EXERCISE LWE
+            // INNER JOIN LW_EXERCISE_VIDEO LEV ON LEV.EXERCISE_ID = LWE.ID
+            // INNER JOIN lw_week lw ON lw.day_of_week = $4
+            // INNER JOIN lw_exercise_partner lep ON lep.partner_id = $3 and lep.exercise_id = LWE.id
+            // inner join lw_ex_partner_week lepw on lepw.lw_week_id = lw.id and lepw.lw_exercise_partner_id = lep.id
+            // WHERE LWE.ID IN (${exerciseIds}) and lepw.create_date = $5 GROUP BY LWE.ID LIMIT $1 OFFSET $2`, [limit, from, partnerId, dayOfWeek, createDate]
+            // );
             result = await this.entityManager.query(`
             SELECT 
             LWE.ID, LWE.IMAGE, LWE.NAME, 
-            (
-                select lepw.finish_flag as finish_flag from lw_week lw 
-                inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id 
-                inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id 
-                where lep.partner_id = $3 AND lw.day_of_week = $4 and lepw.create_date = $5
-            ) AS is_finished,
+            'true' AS is_finished,
             (select COUNT(1) from LW_VIDEO LV INNER JOIN LW_EXERCISE_VIDEO LEV ON LEV.VIDEO_ID = LV.ID WHERE LEV.EXERCISE_ID = LWE.ID) AS TOTAL_ITEMS 
             FROM LW_EXERCISE LWE 
             INNER JOIN LW_EXERCISE_VIDEO LEV ON LEV.EXERCISE_ID = LWE.ID 
             INNER JOIN lw_week lw ON lw.day_of_week = $4 
             INNER JOIN lw_exercise_partner lep ON lep.partner_id = $3 and lep.exercise_id = LWE.id 
             inner join lw_ex_partner_week lepw on lepw.lw_week_id = lw.id and lepw.lw_exercise_partner_id = lep.id 
-            WHERE LWE.ID IN (${exerciseIds}) and lepw.create_date = $5 GROUP BY LWE.ID LIMIT $1 OFFSET $2`, [limit, from, partnerId, dayOfWeek, createDate]);
+            WHERE LWE.ID IN (${exerciseIds}) and lepw.create_date = $5 GROUP BY LWE.ID LIMIT $1 OFFSET $2`,
+                [limit, from, partnerId, dayOfWeek, createDate]
+            );
         }
         return {
             data: result,

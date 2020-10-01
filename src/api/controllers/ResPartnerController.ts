@@ -78,7 +78,7 @@ export class ResPartnerController {
         let location: string = "";
         if (fileAvatar) {
             logger.info(`File name avatar is ===>>>: ${fileAvatar.originalname}`);
-            location = addPhoto(S3Album.AVATAR, fileAvatar);
+            location = addPhoto(S3Album.AVATAR, fileAvatar, {width: 256, height: 256});
         }
         return this._resPartnerService.changeInfoUser(form, user, location).then(function (result) {
             const jwt = Authentication.generateToken(result.phone);

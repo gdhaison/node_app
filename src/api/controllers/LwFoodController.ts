@@ -29,7 +29,7 @@ export class LwFoodController {
     @Post("/food")
     public async addFood(@Body() food: FoodCreateRequest,
                          @UploadedFile("image") image: Express.Multer.File) {
-        const location = addPhoto(S3Album.DIET, image);
+        const location = addPhoto(S3Album.DIET, image, {width: 1280, height: 720});
         return this._lwfoodService.create(food, location);
     }
 
@@ -97,7 +97,7 @@ export class LwFoodController {
                         @Req() req: express.Request, @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
         data.partnerId = user.id;
-        return this._lwfoodService.changeFood(data);
+        return this._lwfoodService.changeFood(data, user.id);
     }
 
     @Post("/finished-eating")

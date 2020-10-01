@@ -41,13 +41,13 @@ export class LwNewsTrace {
     onDelete: "SET NULL",
   })
   @JoinColumn([{ name: "news_id", referencedColumnName: "id" }])
-  news: LwNews;
+  news: number;
 
   @ManyToOne(() => ResPartner, (resPartner) => resPartner.lwNewsTraces, {
     onDelete: "SET NULL",
   })
   @JoinColumn([{ name: "partner_id", referencedColumnName: "id" }])
-  partner: ResPartner;
+  partner: number;
 
   @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwNewsTraces2, {
     onDelete: "SET NULL",

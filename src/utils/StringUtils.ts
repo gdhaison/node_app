@@ -1,8 +1,7 @@
-
 export function toCamel(o: any) {
     let newO, origKey, newKey, value;
     if (o instanceof Array) {
-        return o.map(function(value) {
+        return o.map(function (value) {
             if (typeof value === "object") {
                 value = toCamel(value);
             }
@@ -23,4 +22,13 @@ export function toCamel(o: any) {
         }
     }
     return newO;
+}
+
+export function getRandomString(length: number) {
+    const randomChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+    }
+    return result;
 }
