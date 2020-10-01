@@ -1,7 +1,7 @@
 import {EntityManager, EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
 import {InjectManager} from "typeorm-typedi-extensions";
-import {LwExercise} from "../models/LwExercise";
+import {LwExercise} from "../models";
 import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
 import {PageNotFound} from "../api/errors/PageNotFound";
@@ -38,14 +38,12 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         return parseInt(exCount[0]["count"]);
     }
 
-    async paginate(page: number, limit: number, partnerId: number, dayOfWeek: string): Promise<any> {
+    async paginate(page: number, limit: number, partnerId: number, dayOfWeek: string, createDate: string): Promise<any> {
         const data = await this.entityManager.query(
             `select lw.id as week_id, lep.exercise_id as exercise_id, lepw.finish_flag as finish_flag from lw_week lw 
             inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id 
             inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id 
             where lep.partner_id = $1 AND lw.day_of_week = $2`, [partnerId, dayOfWeek]);
-        let exerciseIds: number[] = [];
-        exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
         const total = data.length;
         let nextPage = true;
         const from = ((page - 1) * limit);
@@ -54,11 +52,23 @@ export class LwExerciseRepository extends Repository<LwExercise> {
             nextPage = false;
         let result = {};
         if (data.length > 0) {
-            result = await this.entityManager.query(`SELECT lwe.id, lwe.image, lwe.name, 
-            (SELECT finish_flag FROM lw_ex_partner_week lepw INNER JOIN lw_exercise_video lev ON lev.video_id = lv.id where lev.exercise_id = lwe.id) as is_finished, 
-            (SELECT count(1) FROM lw_video lv INNER JOIN lw_exercise_video lev ON lev.video_id = lv.id where lev.exercise_id = lwe.id) as total_items 
-            FROM lw_exercise lwe INNER JOIN lw_exercise_video lev ON lev.exercise_id = lwe.id 
-            WHERE lwe.id IN (${exerciseIds}) GROUP BY lwe.id LIMIT $1 OFFSET $2`, [limit, from]);
+            const exerciseIds = data.map((a: { exercise_id: any }) => a.exercise_id);
+            result = await this.entityManager.query(`
+            SELECT 
+            LWE.ID, LWE.IMAGE, LWE.NAME, 
+            (
+                select lepw.finish_flag as finish_flag from lw_week lw 
+                inner join lw_ex_partner_week lepw on lw.id = lepw.lw_week_id 
+                inner join lw_exercise_partner lep on lep.id = lepw.lw_exercise_partner_id 
+                where lep.partner_id = $3 AND lw.day_of_week = $4 and lepw.create_date = $5
+            ) AS is_finished,
+            (select COUNT(1) from LW_VIDEO LV INNER JOIN LW_EXERCISE_VIDEO LEV ON LEV.VIDEO_ID = LV.ID WHERE LEV.EXERCISE_ID = LWE.ID) AS TOTAL_ITEMS 
+            FROM LW_EXERCISE LWE 
+            INNER JOIN LW_EXERCISE_VIDEO LEV ON LEV.EXERCISE_ID = LWE.ID 
+            INNER JOIN lw_week lw ON lw.day_of_week = $4 
+            INNER JOIN lw_exercise_partner lep ON lep.partner_id = $3 and lep.exercise_id = LWE.id 
+            inner join lw_ex_partner_week lepw on lepw.lw_week_id = lw.id and lepw.lw_exercise_partner_id = lep.id 
+            WHERE LWE.ID IN (${exerciseIds}) and lepw.create_date = $5 GROUP BY LWE.ID LIMIT $1 OFFSET $2`, [limit, from, partnerId, dayOfWeek, createDate]);
         }
         return {
             data: result,
@@ -95,7 +105,7 @@ export class LwExerciseRepository extends Repository<LwExercise> {
 
         const result = await this.entityManager.query(select_query + query + "LIMIT " + limit + " OFFSET " + skippedItems);
 
-        const data = {
+        return {
             data: result,
             page,
             limit,
@@ -104,8 +114,14 @@ export class LwExerciseRepository extends Repository<LwExercise> {
             total,
             nextPage
         };
+    }
 
-        return data;
+    async findById(id: number): Promise<any> {
+        const result = await this.entityManager.query(
+            `SELECT le.id, le.name, le.image
+             FROM lw_exercise le WHERE le.id = ${id} `
+        );
+        return result[0];
     }
 
     async findById(id: number): Promise<any> {

@@ -25,7 +25,8 @@ export class ExerciseService extends BaseService<LwExercise> {
     }
 
     async paginate(options: IPaginationOptions, partnerId: number, dayOfWeek: string): Promise<Pagination<LwExercise>> {
-        return await this.lwExerciseRepository.paginate(options.page, options.limit, partnerId, dayOfWeek);
+        const createDate = "2020-09-30";
+        return await this.lwExerciseRepository.paginate(options.page, options.limit, partnerId, dayOfWeek, createDate);
     }
 
     public async putExercise(exerciseId: number, userId: number): Promise<any> {
