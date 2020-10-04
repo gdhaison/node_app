@@ -34,6 +34,10 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.find({phone});
     }
 
+    public async getByFacebookUserId(facebookUserId: string): Promise<ResPartner[] | undefined> {
+        return this._resPartnerRepository.find({facebookUserId});
+    }
+
     public async getByEmail(email: string): Promise<ResPartner[] | undefined> {
         return this._resPartnerRepository.find({email});
     }

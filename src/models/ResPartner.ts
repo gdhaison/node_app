@@ -126,6 +126,9 @@ export class ResPartner {
   @Column("character varying", { name: "email", nullable: true })
   email: string | null;
 
+  @Column("character varying", { name: "facebook_user_id", nullable: true })
+  facebookUserId: string | null;
+
   @Column("character varying", { name: "phone", nullable: true })
   phone: string | null;
 

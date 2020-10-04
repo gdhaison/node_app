@@ -149,6 +149,52 @@ export class ResPartnerController {
         };
     }
 
+    @Post("/facebook/login")
+    public async signInFacebook(@Req() req: express.Request, @Res() res: express.Response, @Body() user: any) {
+        const userId = user.user_id;
+        const resPartners = await this._resPartnerService.getByFacebookUserId(user.user_id);
+        const userLogin = resPartners[0];
+        const jwt = Authentication.generateToken(userId);
+        if (!userLogin) {
+            return this._resPartnerService.create(user).then(function (result) {
+                return {
+                    id: result.id,
+                    access_token: jwt,
+                    full_name: result.name,
+                    email: result.email,
+                    phone: result.phone,
+                    avatar: result.avatar,
+                    address: result.address,
+                    dob: result.dob,
+                    gender: result.gender,
+                    height: result.height,
+                    weight: result.weight,
+                    target_weight: result.targetWeight,
+                    physical: result.physical,
+                    muscle: user.muscle,
+                };
+            });
+        } else {
+            return {
+                id: `${userLogin.id}`,
+                userId: `${userId}`,
+                access_token: jwt,
+                full_name: `${userLogin.name}`,
+                email: `${userLogin.email}`,
+                phone: `${userLogin.phone}`,
+                avatar: `${userLogin.avatar}`,
+                address: `${userLogin.address}`,
+                dob: userLogin.xLwDob,
+                gender: userLogin.xLwGender,
+                height: userLogin.xLwHeight,
+                weight: userLogin.xLwWeight,
+                target_weight: userLogin.xLwExpectedWeight,
+                physical: `${userLogin.physical}`,
+                muscle: `${userLogin.muscle}`,
+            };
+        }
+    }
+
     @Put("/change-password")
     async changePassword(@CurrentUser({required: true}) user: ResPartner,@Res() res: express.Response, @Body() form: UserChangePasswordRequest) {
         res.status(StatusCodes.NO_CONTENT);

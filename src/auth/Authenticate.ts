@@ -17,7 +17,7 @@ export class Authentication {
     static generateToken(phone: string): string {
         const token = jwt.sign({phone}, process.env.JWT_SECRET || "", {
             algorithm: "HS512",
-            expiresIn: "1d",
+            expiresIn: "365d",
         });
         return `Bearer ${token}`;
     }
