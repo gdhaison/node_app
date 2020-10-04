@@ -32,9 +32,6 @@ export class LwWeek {
   @OneToMany(() => LwDiet, (lwDiet) => lwDiet.lwWeek)
   lwDiets: LwDiet[];
 
-  @OneToMany(() => LwExPartnerWeek, (lwExPartnerWeek) => lwExPartnerWeek.lwWeek)
-  lwExPartnerWeeks: LwExPartnerWeek[];
-
   @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwWeeks, {
     onDelete: "SET NULL",
   })

@@ -8,4 +8,8 @@ export class DateUtils {
     static now(format: string) {
         return moment(new Date()).format(format);
     }
+
+    static dow(date: string) {
+        return moment(date).format("dddd").toLowerCase();
+    }
 }

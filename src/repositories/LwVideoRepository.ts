@@ -11,7 +11,7 @@ export class LwVideoRepository extends Repository<LwVideo> {
         super();
     }
 
-    async findByExerciseId(exerciseId: number, page: number, pageSize: number): Promise<any> {
+    async findByExerciseId(exerciseId: number, page: number, pageSize: number, partnerId: number, viewDate: string): Promise<any> {
         let nextPage = true;
         const from = ((page - 1) * pageSize);
         const to = page * pageSize;
@@ -25,9 +25,14 @@ export class LwVideoRepository extends Repository<LwVideo> {
         if (!count && count.length <= 0)
             return [];
         const result = await this.entityManager.query(
-            `SELECT lv.id, lv.image, lv.video_name as name, lv.url as video, lv.description FROM lw_video lv 
+            `SELECT lv.id, lv.image, lv.video_name as name, lv.url as video, lv.description,
+            levp.finish_flag as is_finished FROM lw_video lv 
             INNER JOIN lw_exercise_video lev ON lv.id = lev.video_id 
-            WHERE lev.exercise_id = ${exerciseId} LIMIT $1 OFFSET $2`, [pageSize, from]);
+            LEFT JOIN lw_exercise_video_partner levp ON levp.exercise_video_id = lev.id 
+            AND levp.partner_id = $4  
+            AND levp.finish_date = $3 
+            WHERE lev.exercise_id = $5 LIMIT $1 OFFSET $2`,
+            [pageSize, from, viewDate, partnerId, exerciseId]);
 
         const total = count[0].count;
         if (to >= total)
@@ -42,12 +47,5 @@ export class LwVideoRepository extends Repository<LwVideo> {
             total,
             nextPage
         };
-    }
-
-    async countByExerciseId(exerciseId: number): Promise<any> {
-        return await this.entityManager.query(
-            `SELECT lev.exercise_id, COUNT(1) FROM lw_video lv INNER JOIN lw_exercise_video lev ON lv.id = lev.video_id
-             WHERE lev.exercise_id = ${exerciseId}`
-        );
     }
 }

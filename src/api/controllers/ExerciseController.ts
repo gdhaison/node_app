@@ -17,11 +17,11 @@ export class ExerciseController {
 
     @Get()
     public async search(@CurrentUser({required: true}) user: ResPartner,
-                        @QueryParam("day") day: string,
+                        @QueryParam("date") date: string,
                         @QueryParam("page") page: number,
                         @QueryParam("page_size") pageSize: number,
                         @Req() req: express.Request, @Res() res: express.Response) {
-        return this._exerciseService.paginate({page: page ? page : 1, limit: pageSize ? pageSize : 10}, user.id, day);
+        return this._exerciseService.paginate({page: page ? page : 1, limit: pageSize ? pageSize : 10}, user.id, date);
     }
 
     @Get("/area")
@@ -35,22 +35,30 @@ export class ExerciseController {
     }
 
     @Get("/:exercise_id")
-    public async getById(@Param("exercise_id") exerciseId: number,
+    public async getById(@CurrentUser({required: true}) user: ResPartner,
+                         @Param("exercise_id") exerciseId: number,
+                         @QueryParam("date") date: string,
                          @QueryParam("page") page: number,
                          @QueryParam("page_size") pageSize: number,
                          @Req() req: express.Request, @Res() res: express.Response) {
-        return this._exerciseService.getById(exerciseId, page, pageSize);
+        return this._exerciseService.getById(exerciseId, page, pageSize, user.id, date);
     }
 
     @Put("/finish")
-    public async putExercise(
-        @QueryParam("exercise_id") exercise_id: number,
+    public async finishExercise(
+        @Body() data: any,
         @CurrentUser({required: true}) user: ResPartner,
     ): Promise<any> {
-        const userId = user.id;
-        return this._exerciseService.putExercise(exercise_id, userId);
+        return this._exerciseService.finishExercise(data.exercise_id, user.id);
     }
 
+    @Put("/finish-video")
+    public async finishExerciseVideo(
+        @CurrentUser({required: true}) user: ResPartner,
+        @Body() data: any,
+    ): Promise<any> {
+        return this._exerciseService.finishExerciseVideo(data.exercise_id, data.video_id, user.id);
+    }
 
     @Put("/muscle")
     public async putMuscle(

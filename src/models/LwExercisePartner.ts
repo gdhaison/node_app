@@ -1,24 +1,17 @@
 import {
   Column,
   Entity,
-  Index,
   JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
+  ManyToOne, PrimaryColumn,
 } from "typeorm";
-import { LwExPartnerWeek } from "./LwExPartnerWeek";
 import { ResUsers } from "./ResUsers";
 import { LwExercise } from "./LwExercise";
 import { ResPartner } from "./ResPartner";
 
-@Index("lw_exercise_partner_pkey", ["id"], { unique: true })
 @Entity("lw_exercise_partner", { schema: "public" })
 export class LwExercisePartner {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: number;
 
-  @Column("double precision", { name: "progress", precision: 53 })
+  @PrimaryColumn()
   progress: number;
 
   @Column("character varying", { name: "emotion", nullable: true })
@@ -33,11 +26,6 @@ export class LwExercisePartner {
   @Column("timestamp without time zone", { name: "write_date", nullable: true })
   writeDate: Date | null;
 
-  @OneToMany(
-    () => LwExPartnerWeek,
-    (lwExPartnerWeek) => lwExPartnerWeek.lwExercisePartner
-  )
-  lwExPartnerWeeks: LwExPartnerWeek[];
 
   @ManyToOne(() => ResUsers, (resUsers) => resUsers.lwExercisePartners, {
     onDelete: "SET NULL",

@@ -151,8 +151,8 @@ export class ResPartnerController {
 
     @Post("/facebook/login")
     public async signInFacebook(@Req() req: express.Request, @Res() res: express.Response, @Body() user: any) {
-        const userId = user.user_id;
-        const resPartners = await this._resPartnerService.getByFacebookUserId(user.user_id);
+        const userId = user.facebook_id;
+        const resPartners = await this._resPartnerService.getByFacebookUserId(user.facebook_id);
         const userLogin = resPartners[0];
         const jwt = Authentication.generateToken(userId);
         if (!userLogin) {
