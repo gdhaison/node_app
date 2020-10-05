@@ -151,9 +151,30 @@ export class ResPartnerController {
 
     @Post("/facebook/login")
     public async signInFacebook(@Req() req: express.Request, @Res() res: express.Response, @Body() user: any) {
+        const resPartnerByPhone = await this._resPartnerService.getByPhone(user.phone);
+        let userLogin = resPartnerByPhone[0];
+        if (resPartnerByPhone && resPartnerByPhone.length > 0) {
+            const jwt = Authentication.generateToken(user.phone);
+            return {
+                id: `${userLogin.id}`,
+                access_token: jwt,
+                full_name: `${userLogin.name}`,
+                email: `${userLogin.email}`,
+                phone: `${userLogin.phone}`,
+                avatar: `${userLogin.avatar}`,
+                address: `${userLogin.address}`,
+                dob: userLogin.xLwDob,
+                gender: userLogin.xLwGender,
+                height: userLogin.xLwHeight,
+                weight: userLogin.xLwWeight,
+                target_weight: userLogin.xLwExpectedWeight,
+                physical: `${userLogin.physical}`,
+                muscle: `${userLogin.muscle}`,
+            };
+        }
         const userId = user.facebook_id;
         const resPartners = await this._resPartnerService.getByFacebookUserId(user.facebook_id);
-        const userLogin = resPartners[0];
+        userLogin = resPartners[0];
         const jwt = Authentication.generateToken(userId);
         if (!userLogin) {
             return this._resPartnerService.create(user).then(function (result) {

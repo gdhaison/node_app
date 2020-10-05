@@ -21,7 +21,6 @@ export class ExerciseService extends BaseService<LwExercise> {
     }
 
     public async getById(id: number, page: number = 1, pageSize: number = 10, partnerId: number, date: string): Promise<any> {
-        // return this.lwExerciseRepository.findOne(id, { relations: ["lwExerciseVideos"] });
         return await this.lwVideoRepository.findByExerciseId(id, page, pageSize, partnerId, date);
     }
 

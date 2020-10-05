@@ -64,8 +64,22 @@ export class LwExerciseRepository extends Repository<LwExercise> {
                 [limit, from, partnerId, finishDate, dayOfWeek]
             );
         }
+        const weightlossArr = await this.entityManager.query(`SELECT lwa.id FROM lw_weightloss_area_partner lwap 
+                INNER JOIN lw_weightloss_area lwa ON lwa.id = lwap.weightloss_area_id 
+                where lwap.partner_id = $1`, [partnerId]);
+
+        const weightlossAreaIds = weightlossArr.map(function (wl: any) {
+            return wl.id;
+        });
+
+        const randomEx = await this.entityManager.query(`select le.id, le.image, le."name",
+            false as is_finished, (select COUNT(1) from lw_video lv 
+            INNER JOIN lw_exercise_video lev1 ON lev1.video_id = lv.id WHERE lev1.exercise_id = le.id) AS total_items 
+            from lw_exercise le inner join lw_exercise_lw_weightloss_area_rel lelwarl on lelwarl.lw_exercise_id = le.id 
+            where lelwarl.lw_weightloss_area_id in (${weightlossAreaIds}) LIMIT 1 OFFSET 0`);
+
         return {
-            data: result,
+            data: [...result, ...randomEx],
             page,
             limit,
             from: from + 1,
@@ -114,8 +128,8 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         const del = await this.entityManager.query(`Delete from lw_weightloss_area_partner lwap
             where lwap.partner_id = ${userId}
         `);
-        for( const i in muscle) {
-           this.entityManager.query(`Insert into lw_weightloss_area_partner (partner_id, weightloss_area_id, active)
+        for (const i in muscle) {
+            this.entityManager.query(`Insert into lw_weightloss_area_partner (partner_id, weightloss_area_id, active)
                               values (${userId}, (select lwa.id from lw_weightloss_area lwa where lwa.name = '${muscle[i]}'),
                               true )`);
         }
