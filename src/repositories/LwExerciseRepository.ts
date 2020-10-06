@@ -17,6 +17,10 @@ export class LwExerciseRepository extends Repository<LwExercise> {
 
     async finishExercise(exerciseId: number, userId: number): Promise<any> {
         const now = DateUtils.dateToString(new Date(), "YYYY-MM-DD");
+        const exercisePartner = await this.entityManager.query("SELECT * FROM lw_exercise_partner WHERE exercise_id = $1 AND partner_id = $2 AND finish_date = $3",
+            [exerciseId, userId, now]);
+        if (exercisePartner && exercisePartner.length > 0)
+            throw new Error("Exercise had finished!");
         return this.entityManager.query(`INSERT INTO lw_exercise_partner (exercise_id, partner_id, progress, finish_flag, finish_date) 
         VALUES (${exerciseId}, ${userId}, 1, true,'${now}')`);
     }
