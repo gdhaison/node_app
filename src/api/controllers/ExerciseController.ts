@@ -1,4 +1,4 @@
-import {Get, Put, JsonController, QueryParam, Body} from "routing-controllers";
+import {Body, Get, JsonController, Put, QueryParam} from "routing-controllers";
 import express from "express";
 import {Param} from "routing-controllers/decorator/Param";
 import {Req} from "routing-controllers/decorator/Req";
@@ -6,6 +6,7 @@ import {Res} from "routing-controllers/decorator/Res";
 import {ExerciseService} from "../../services/ExerciseService";
 import {ResPartner} from "../../models";
 import {CurrentUser} from "routing-controllers/decorator/CurrentUser";
+import {StatusCodes} from "http-status-codes";
 
 @JsonController("/exercise-regimes")
 export class ExerciseController {
@@ -47,25 +48,26 @@ export class ExerciseController {
     @Put("/finish")
     public async finishExercise(
         @Body() data: any,
-        @CurrentUser({required: true}) user: ResPartner,
-    ): Promise<any> {
+        @Res() res: express.Response,
+        @CurrentUser({required: true}) user: ResPartner): Promise<any> {
+        res.status(StatusCodes.NO_CONTENT);
         return this._exerciseService.finishExercise(data.exercise_id, user.id);
     }
 
     @Put("/finish-video")
     public async finishExerciseVideo(
         @CurrentUser({required: true}) user: ResPartner,
+        @Res() res: express.Response,
         @Body() data: any,
     ): Promise<any> {
+        res.status(StatusCodes.NO_CONTENT);
         return this._exerciseService.finishExerciseVideo(data.exercise_id, data.video_id, user.id);
     }
 
     @Put("/muscle")
     public async putMuscle(
         @CurrentUser({required: true}) user: ResPartner,
-        @Body() data: any):
-        Promise<any>
-    {
+        @Body() data: any): Promise<any> {
         const userId = user.id;
         return this._exerciseService.putMuscle(userId, data.muscles);
     }

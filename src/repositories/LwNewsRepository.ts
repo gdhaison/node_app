@@ -19,7 +19,7 @@ export class LwNewsRepository extends Repository<LwNews> {
 
     async getNews(page: number, limit: number, userId: number) {
         const skippedItems = (page - 1) * limit;
-        const data = await this.query(`select ln2.id, ln2.image_url_list, ln2.title, ln2.description,
+        const data = await this.query(`select ln2.id, ln2.image_url_list, ln2.title, substring(ln2.description from 1 for 1000) as description,
              (select count(lnt.id) from lw_news_trace lnt where lnt.news_id = ln2.id and lnt.like_flg = true) as total_like,
              (select count(lnt.id) from lw_news_trace lnt where lnt.news_id  = ln2.id and lnt.read_flg = true) as total_views,
              (select count(lnt.id) from lw_news_trace lnt where lnt.news_id  = ln2.id and lnt.like_flg = true and lnt.partner_id = ${userId}) as like_flag 
