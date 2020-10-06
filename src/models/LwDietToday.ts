@@ -1,6 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
-@Index("lw_diet_today_pkey", ["id"], { unique: true })
 @Entity("lw_diet_today", { schema: "public" })
 export class LwDietToday {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })

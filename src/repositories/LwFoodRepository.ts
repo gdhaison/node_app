@@ -307,6 +307,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         const diet_id = parseInt(diet[0]["id"]);
         const date = new Date().toISOString();
         return await this.entityManager
-            .query(`Insert into lw_diet_today (diet_id, status, created_date) values ('${diet_id}', ${true}, '${date}')`);
+            .query(`Insert into lw_food_menu_partner_today (lw_food_menu_partner_id, status, created_date) 
+            values ('${diet_id}', ${true}, '${date}')`);
     }
 }

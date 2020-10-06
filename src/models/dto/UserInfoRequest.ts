@@ -10,4 +10,8 @@ export class UserInfoRequest {
 
     @IsString()
     address!: string;
+
+    weight!: number;
+
+    height!: number;
 }

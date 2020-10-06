@@ -6,11 +6,8 @@ import {ResPartner} from "../models/ResPartner";
 @EntityRepository(ResPartner)
 export class ResPartnerRepository extends Repository<ResPartner> {
 
-    updateInfo(userInfo: any, id: number) {
-        return this.createQueryBuilder().update(ResPartner).set({
-            email: userInfo.email,
-            address: userInfo.address,
-            avatar: userInfo.avatar
-        }).where("id = :id", {id: id}).execute();
-    };
+    getCaloPartnerToday(): Promise<any> {
+
+        return null;
+    }
 }

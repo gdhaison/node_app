@@ -1,6 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
-@Index("lw_food_menu_partner_pkey", ["id"], { unique: true })
 @Entity("lw_food_menu_partner", { schema: "public" })
 export class LwFoodMenuPartner {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })

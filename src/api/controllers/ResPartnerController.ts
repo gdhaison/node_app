@@ -73,7 +73,7 @@ export class ResPartnerController {
     }
 
     @Put("/infor")
-    update(@CurrentUser({required: true}) user: ResPartner, @Body() form: UserInfoRequest,
+    update(@CurrentUser({required: true}) user: ResPartner, @Body() form: any,
            @UploadedFile("avatar") fileAvatar: File) {
         let location: string = "";
         if (fileAvatar) {
@@ -220,5 +220,11 @@ export class ResPartnerController {
     async changePassword(@CurrentUser({required: true}) user: ResPartner,@Res() res: express.Response, @Body() form: UserChangePasswordRequest) {
         res.status(StatusCodes.NO_CONTENT);
         return await this._resPartnerService.changePassword(form, user);
+    }
+
+    @Get("/home")
+    async home(@QueryParam("from_date") fromDate: string,
+               @QueryParam("to_date") toDate: string) {
+        return await this._resPartnerService.getCaloPartnerToday(fromDate, toDate);
     }
 }

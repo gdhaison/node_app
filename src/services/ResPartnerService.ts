@@ -16,6 +16,7 @@ import {LwWeightLossAreaPartnerRepository} from "../repositories/LwWeightLossAre
 import {LwWeightlossAreaPartner} from "../models/LwWeightlossAreaPartner";
 import {LwWeightLossAreaRepository} from "../repositories/LwWeightLossAreaRepository";
 import {LwWeightlossArea} from "../models/LwWeightlossArea";
+import {DateUtils} from "../utils/DateUtils";
 
 
 @Service()
@@ -42,11 +43,16 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.find({email});
     }
 
+    public async getCaloPartnerToday(fromDate: string, toDate: string): Promise<ResPartner | undefined> {
+        const dayOfWeek = DateUtils.dow(new Date().toISOString());
+        return this._resPartnerRepository.getCaloPartnerToday();
+    }
+
     public async getById(id: number): Promise<ResPartner | undefined> {
         return this._resPartnerRepository.findOne({id});
     }
 
-    public async changeInfoUser(userInfo: UserInfoRequest, user: ResPartner, avatarLocation: string): Promise<ResPartner> {
+    public async changeInfoUser(userInfo: any, user: ResPartner, avatarLocation: string): Promise<ResPartner> {
         if (userInfo.name) {
             user.name = userInfo.name;
         }
@@ -56,8 +62,11 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (userInfo.address) {
             user.address = userInfo.address;
         }
-        if (userInfo.address) {
-            user.avatar = avatarLocation;
+        if (userInfo.height) {
+            user.xLwHeight = userInfo.height;
+        }
+        if (userInfo.weight) {
+            user.xLwWeight = userInfo.weight;
         }
         user.writeDate = new Date();
         return this._resPartnerRepository.save(user);
