@@ -72,11 +72,14 @@ export class LwExerciseRepository extends Repository<LwExercise> {
             return wl.id;
         });
 
-        const randomEx = await this.entityManager.query(`select le.id, le.image, le."name",
+        let randomEx = [];
+        if (weightlossAreaIds && weightlossAreaIds.length > 0){
+            randomEx = await this.entityManager.query(`select le.id, le.image, le."name",
             false as is_finished, (select COUNT(1) from lw_video lv 
             INNER JOIN lw_exercise_video lev1 ON lev1.video_id = lv.id WHERE lev1.exercise_id = le.id) AS total_items 
             from lw_exercise le inner join lw_exercise_lw_weightloss_area_rel lelwarl on lelwarl.lw_exercise_id = le.id 
             where lelwarl.lw_weightloss_area_id in (${weightlossAreaIds}) LIMIT 1 OFFSET 0`);
+        }
 
         return {
             data: [...result, ...randomEx],
