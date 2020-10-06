@@ -209,15 +209,15 @@ export class LwFoodRepository extends Repository<LwFood> {
             query = ` FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id where lf.id in (select distinct lfmp.food_id FROM lw_food_menu_partner lfmp where lfmp.day_of_week = 
             '${dayOfWeek}' and lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id}) `;
         }
-        const count_diet = await this.entityManager.query(`Select count (*) from lw_diet_today where diet_id =
-            (Select ld.id from lw_diet ld inner join lw_menu lm
-            on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '${dayOfWeek}'
-            and lm.code = '${menu}' and ld.partner_id = ${user_id})`);
-        const diet_num = parseInt(count_diet[0]["count"]);
+        // const count_diet = await this.entityManager.query(`Select count (1) from lw_food_menu_partner_today where lw_food_menu_partner_id =
+        //     (Select ld.id from lw_diet ld inner join lw_menu lm on lm.id = ld.lw_menu_id inner join lw_week lw on lw.id = ld.lw_week_id where lw.day_of_week = '${dayOfWeek}'
+        //     and lm.code = '${menu}' and ld.partner_id = ${user_id})`);
+        // const diet_num = parseInt(count_diet[0]["count"]);
+        const diet_num = 2;
         let isFinish = false;
-        if (diet_num!=0) {
-            isFinish = true;
-        }
+        // if (diet_num!=0) {
+        //     isFinish = true;
+        // }
         const count = await this.entityManager.query("SELECT COUNT(DISTINCT(lf.id))" + query);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);

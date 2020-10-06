@@ -62,6 +62,15 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (userInfo.address) {
             user.address = userInfo.address;
         }
+        if (userInfo.gender) {
+            user.xLwGender = userInfo.gender;
+        }
+        if (userInfo.target_weight) {
+            user.xLwExpectedWeight = userInfo.target_weight;
+        }
+        if (userInfo.physical) {
+            user.physical = userInfo.physical;
+        }
         if (userInfo.height) {
             user.xLwHeight = userInfo.height;
         }
