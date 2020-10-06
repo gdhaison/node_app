@@ -22,9 +22,9 @@ export class NewsController {
 
     @Get()
     getNews(@CurrentUser({required: true}) user: ResPartner,
-            @QueryParam("page", {required: true}) page: number,
-            @QueryParam("limit", {required: true}) limit: number) {
-        return this._lwNewService.getNews(page, limit, user.id);
+            @QueryParam("page") page: number,
+            @QueryParam("limit") limit: number) {
+        return this._lwNewService.getNews(page ? page : 1, limit ? limit : 10, user.id);
     }
 
     @Post("/like")

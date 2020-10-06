@@ -31,7 +31,7 @@ export class LwVideoRepository extends Repository<LwVideo> {
             LEFT JOIN lw_exercise_video_partner levp ON levp.exercise_video_id = lev.id 
             AND levp.partner_id = $4  
             AND levp.finish_date = $3 
-            WHERE lev.exercise_id = $5 LIMIT $1 OFFSET $2`,
+            WHERE lev.exercise_id = $5 GROUP BY lv.id, levp.finish_flag LIMIT $1 OFFSET $2`,
             [pageSize, from, viewDate, partnerId, exerciseId]);
 
         const total = count[0].count;
