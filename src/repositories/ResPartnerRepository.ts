@@ -41,7 +41,7 @@ export class ResPartnerRepository extends Repository<ResPartner> {
                        and levp.partner_id = $1 group by levp.finish_date
                    ) as exercise`, [partnerId]);
         return {
-            calo_id: caloIn ? caloIn[0].calo_in : 0,
+            calo_in: caloIn ? caloIn[0].calo_in : 0,
             calo_out: caloOut ? caloOut[0].calo_out : 0,
             calo_total_week: caloInWeek
         };
