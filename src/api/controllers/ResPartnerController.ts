@@ -25,7 +25,6 @@ import {UserCreateRequest} from "../../models/dto/UserCreateRequest";
 import {StatusCodes} from "http-status-codes";
 import {ErrorCode} from "../../enums/ErrorCode";
 import express from "express";
-import {UserInfoRequest} from "../../models/dto/UserInfoRequest";
 import {addPhoto} from "../../utils/S3Utils";
 import {S3Album} from "../../enums/S3Album";
 import {UserChangePasswordRequest} from "../../models/dto/UserChangePasswordRequest";
@@ -42,11 +41,6 @@ export class ResPartnerController {
     @Get()
     getAll(@CurrentUser({required: true}) user: ResPartner) {
         return this._resPartnerService.getAll();
-    }
-
-    @Get("/:id")
-    async getById(@Param("id") id: number) {
-        return await this._resPartnerService.getById(id);
     }
 
     @Post("/register")
@@ -223,8 +217,9 @@ export class ResPartnerController {
     }
 
     @Get("/home")
-    async home(@QueryParam("from_date") fromDate: string,
+    async home(@CurrentUser({required: true}) user: ResPartner,
+               @QueryParam("from_date") fromDate: string,
                @QueryParam("to_date") toDate: string) {
-        return await this._resPartnerService.getCaloPartnerToday(fromDate, toDate);
+        return await this._resPartnerService.getCaloPartnerToday(fromDate, toDate, user.id);
     }
 }

@@ -214,7 +214,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         //     and lm.code = '${menu}' and ld.partner_id = ${user_id})`);
         // const diet_num = parseInt(count_diet[0]["count"]);
         const diet_num = 2;
-        let isFinish = false;
+        const isFinish = false;
         // if (diet_num!=0) {
         //     isFinish = true;
         // }

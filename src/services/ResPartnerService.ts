@@ -8,7 +8,6 @@ import argon2 from "argon2";
 import logger from "../lib/logger/logger";
 import {randomBytes} from "crypto";
 import {UserExitsError} from "../api/errors/UserExitsError";
-import {UserInfoRequest} from "../models/dto/UserInfoRequest";
 import {UserChangePasswordRequest} from "../models/dto/UserChangePasswordRequest";
 import {WrongPasswordErrors} from "../api/errors/WrongPasswordErros";
 import {StatusCodes} from "http-status-codes";
@@ -43,9 +42,11 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.find({email});
     }
 
-    public async getCaloPartnerToday(fromDate: string, toDate: string): Promise<ResPartner | undefined> {
-        const dayOfWeek = DateUtils.dow(new Date().toISOString());
-        return this._resPartnerRepository.getCaloPartnerToday();
+    public async getCaloPartnerToday(fromDate: string, toDate: string, partnerId: number): Promise<ResPartner | undefined> {
+        const now = new Date();
+        const dayOfWeek = DateUtils.dow(now.toISOString());
+        const date = DateUtils.dateToString(now, "YYYY-MM-DD");
+        return this._resPartnerRepository.getCaloPartnerToday(dayOfWeek, partnerId, date, fromDate, toDate);
     }
 
     public async getById(id: number): Promise<ResPartner | undefined> {
