@@ -34,6 +34,19 @@ export class ResPartnerService extends BaseService<ResPartner> {
         return this._resPartnerRepository.find({phone});
     }
 
+    public async getMuscle(partnerId: number): Promise<string[] | undefined> {
+        const data = await this._lwWeightLossAreaPartnerRepository.getByPartnerId(partnerId);
+        const muscle = [];
+        for (const name in data) {
+            const obj: { name: string } = data[name];
+            if (obj) {
+                muscle.push(obj.name);
+            }
+        }
+        return muscle;
+    }
+
+
     public async getByFacebookUserId(facebookUserId: string): Promise<ResPartner[] | undefined> {
         return this._resPartnerRepository.find({facebookUserId});
     }
@@ -159,7 +172,7 @@ export class ResPartnerService extends BaseService<ResPartner> {
         }
 
         const salt = randomBytes(32);
-        const password= await argon2.hash(new_pass, {salt});
+        const password = await argon2.hash(new_pass, {salt});
         if (userInfo.new_pass) {
             user.xLwPassword = password;
         }

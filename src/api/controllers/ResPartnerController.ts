@@ -125,6 +125,8 @@ export class ResPartnerController {
         logger.info("Password is valid!");
         logger.info("Generating JWT");
         const jwt = Authentication.generateToken(phone);
+        const muscle = await this._resPartnerService.getMuscle(userLogin.id);
+
         return {
             id: `${userLogin.id}`,
             access_token: jwt,
@@ -139,7 +141,7 @@ export class ResPartnerController {
             weight: userLogin.xLwWeight,
             target_weight: userLogin.xLwExpectedWeight,
             physical: `${userLogin.physical}`,
-            muscle: `${userLogin.muscle}`,
+            muscle: muscle,
         };
     }
 

@@ -1,8 +1,6 @@
 import {Service} from "typedi";
 import {EntityRepository, Repository} from "typeorm";
 import {LwNewsTrace} from "../models/LwNewsTrace";
-import {ResPartner} from "../models";
-import {LwNews} from "../models/LwNews";
 
 @Service()
 @EntityRepository(LwNewsTrace)

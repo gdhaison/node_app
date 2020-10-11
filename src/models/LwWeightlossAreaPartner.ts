@@ -10,7 +10,6 @@ import { ResUsers } from "./ResUsers";
 import { ResPartner } from "./ResPartner";
 import { LwWeightlossArea } from "./LwWeightlossArea";
 
-@Index("lw_weightloss_area_partner_pkey", ["id"], { unique: true })
 @Entity("lw_weightloss_area_partner", { schema: "public" })
 export class LwWeightlossAreaPartner {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })

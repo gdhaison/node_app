@@ -1,11 +1,6 @@
 import {EntityManager, EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
 import {InjectManager} from "typeorm-typedi-extensions";
-import {LwExercise} from "../models/LwExercise";
-import {ExerciseNotFoundError} from "../api/errors/ExerciseNotFoundError";
-import {ErrorCode} from "../enums/ErrorCode";
-import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
-import {PageNotFound} from "../api/errors/PageNotFound";
 import {LwExerciseVideo} from "../models";
 
 @Service()

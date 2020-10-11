@@ -17,4 +17,13 @@ export class LwWeightLossAreaPartnerRepository extends Repository<LwWeightlossAr
             .values(data)
             .execute();
     };
+
+    async getByPartnerId(partnerId: number): Promise<any[]> {
+        const muscles = await this.entityManager.query(
+            `SELECT lwa.name FROM lw_weightloss_area_partner lwap
+            INNER JOIN lw_weightloss_area lwa ON lwa.id = lwap.weightloss_area_id 
+            WHERE lwap.partner_id = $1`, [partnerId]
+        );
+        return muscles;
+    };
 }

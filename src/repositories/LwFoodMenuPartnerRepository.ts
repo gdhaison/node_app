@@ -1,4 +1,4 @@
-import {DeleteResult, EntityManager, EntityRepository, getConnection, Repository} from "typeorm";
+import { EntityManager, EntityRepository, Repository} from "typeorm";
 import {Service} from "typedi";
 import {InjectManager} from "typeorm-typedi-extensions";
 import {LwFoodMenuPartner} from "../models/LwFoodMenuPartner";
