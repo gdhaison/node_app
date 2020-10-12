@@ -60,14 +60,14 @@ export class LwFoodController {
 
     @Get("/foods")
     getFoodByDate(
-        @QueryParam("date") date: string,
+        @QueryParam("day_of_week") day_of_week: string,
         @QueryParam("menu") menu: string,
         @QueryParam("page") page: number,
         @QueryParam("limit") limit: number,
         @CurrentUser({required: true}) user: ResPartner,
     ): Promise<any> {
         const user_id = user.id;
-        return this._lwfoodService.getFoodByDate(date, menu, user_id, page, limit);
+        return this._lwfoodService.getFoodByDate(day_of_week, menu, user_id, page, limit);
     }
 
     @Get("/:food_id")
