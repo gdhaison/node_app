@@ -184,52 +184,57 @@ export class LwFoodRepository extends Repository<LwFood> {
             .execute();
     }
 
-    async findFoodByDateCategory(search_text: string, category: string, page: number, limit: number, user_id: number):
-        Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
+    async findFoodByDateCategory(
+        day_of_week: string,
+        menu: string,
+        user_id: number,
+        page: number,
+        limit: number):
+        Promise<any> {
+
+        const dow = DateUtils.dow(day_of_week);
+        const is_exist = await this.entityManager.query(`select count(id) from lw_food_menu_partner lfmp where lfmp.menu_code = 
+                                                       '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week= '${dow}'`);
+        if(parseInt(is_exist[0]["count"]) == 0) {
+            const food_ids = await this.entityManager.query(`Select lflmr.lw_food_id from lw_food_lw_menu_rel
+                            lflmr inner join lw_diet ld on ld.lw_menu_id = lflmr.lw_menu_id where ld.lw_week_id = (
+                            select lw.id from lw_week lw where lw.day_of_week = '${dow}') and ld.lw_menu_id = 
+                            (select lm.id from lw_menu lm where lm.code = '${menu}') `);
+            for( const food_id in food_ids){
+                await this.entityManager.query(`Insert into lw_food_menu_partner(food_id, menu_code, partner_id ,day_of_week) 
+                                                         values(${parseInt(food_ids[food_id]["lw_food_id"])}, '${menu}', ${user_id}, '${dow}')`);
+
+            }
+        }
         const skippedItems = (page - 1) * limit;
         const select_query =
-            `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,
-            (select lfs1.star as user_star from lw_food_star lfs1  where lfs1.res_partner_id = ${user_id} and lfs1.food_id = lf.id),
-            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id} AND lfs.like_flag = 1 
+            `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,(select lfs.star from lw_food_star
+             lfs where lfs.res_partner_id = ${user_id} and lfs.food_id = lf.id) AS user_star,
+            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id}  AND lfs.like_flag = 1 
             AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs 
-            WHERE lfs.food_id = lf.id)::INTEGER AS star `;
+            where lfs.food_id = lf.id)::INTEGER AS star `;
 
-        let query =
-            `FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id inner join lw_food_category lfc 
-            on lfc.food_id = lf.id inner join lw_category lc on lc.code = lfc.category_code `;
-        let condition = "";
+        const query = ` from lw_food lf inner join lw_food_menu_partner lfmp on lf.id = lfmp.food_id 
+                      where lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week= '${dow}'`;
 
-        if (category == "") {
-            condition = `WHERE lf.name LIKE '%${search_text}%'`;
-            query = "FROM lw_food lf LEFT JOIN lw_food_star lfs ON lfs.food_id = lf.id ";
-        }
-        else {
-            condition = `WHERE lf.name LIKE '%${search_text}%'and lc.code = '${category}' `;
-        }
-        let count = await this.entityManager.query(`SELECT COUNT(DISTINCT(lf.id)) ${query} ${condition}`);
-        if(category == "food-like") {
-            count = await this.entityManager.query(`SELECT COUNT(DISTINCT(lf.id)) ${query} ${condition} AND lfc.partner_id = ${user_id}`);
-        }
 
+        const count = await this.entityManager.query(`select count(id) from lw_food_menu_partner lfmp
+         where lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week= '${dow}'`);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total/limit);
+
         let to = 0;
         let nextPage = true;
         if (total > page*limit) {
             to = page*limit;
-        }
-        else if ( page > total_page && total_page != 0) {
+        } else if ( page > total_page && total_page != 0) {
             throw new PageNotFound(ErrorCode.PAGE_NOT_EXIST);
-        }
-        else{
+        } else {
             to = total;
             nextPage = false;
         }
 
-        let result = await this.entityManager.query(select_query + query + condition + "LIMIT " + limit + " OFFSET " + skippedItems);
-        if(category == "food-like") {
-            result = await this.entityManager.query(select_query + query + condition + "AND lfc.partner_id = " + user_id + "LIMIT " + limit + " OFFSET " + skippedItems);
-        }
+        const result = await this.entityManager.query(select_query + query + "LIMIT "+ limit +" OFFSET " + skippedItems);
 
         const data = {
             data: result,
@@ -238,11 +243,11 @@ export class LwFoodRepository extends Repository<LwFood> {
             from: skippedItems + 1,
             to,
             total,
-            nextPage
+            nextPage,
         };
 
         return data;
-    };
+    }
 
     public async findFoodByCategory(category: string, page: number, limit: number, user_id: number): Promise<any> {
         const skippedItems = (page - 1) * limit;
