@@ -159,7 +159,9 @@ export class ResPartnerService extends BaseService<ResPartner> {
             lwWeightLossAreaPartner.writeDate = now;
             muscleData.push(lwWeightLossAreaPartner);
         });
-        await this._lwWeightLossAreaPartnerRepository.bulkInsert(muscleData);
+        if (muscleData && muscleData.length > 0) {
+            await this._lwWeightLossAreaPartnerRepository.bulkInsert(muscleData);
+        }
         return userDb;
     }
 

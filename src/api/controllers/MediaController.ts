@@ -1,7 +1,4 @@
-import {
-    Get,
-    JsonController, Param,
-} from "routing-controllers";
+import {Get, JsonController, Param,} from "routing-controllers";
 import {Res} from "routing-controllers/decorator/Res";
 import {Response} from "express";
 import path from "path";

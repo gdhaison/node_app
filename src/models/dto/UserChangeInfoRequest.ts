@@ -1,4 +1,4 @@
-import {IsEmail, IsNumber, IsPhoneNumber, IsString, Matches} from "class-validator";
+import {IsEmail, IsString} from "class-validator";
 import {JsonProperty} from "json-object-mapper";
 
 export class UserCreateRequest {

@@ -16,7 +16,7 @@ function getExtension(filename: string) {
     return ext[ext.length - 1];
 }
 
-export function addPhoto(albumName: string, file: Express.Multer.File, options: {width: number; height: number}) {
+export function addPhoto(albumName: string, file: Express.Multer.File, options: { width: number; height: number }) {
     const fileName = file.originalname;
     const fileEx = getExtension(fileName);
     const albumPhotosKey = encodeURIComponent(albumName) + "/";
@@ -34,7 +34,7 @@ export function addPhoto(albumName: string, file: Express.Multer.File, options: 
     sharp(file.buffer)
         .resize(width, height)
         .toBuffer()
-        .then((buff: Buffer)=> {
+        .then((buff: Buffer) => {
             params.Body = buff;
             s3.upload(params, (err: Error, data: any) => {
                 if (err) {

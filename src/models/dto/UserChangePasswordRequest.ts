@@ -1,5 +1,4 @@
 import {IsNotEmpty, IsString} from "class-validator";
-import {JsonProperty} from "json-object-mapper";
 import {Match} from "../../decorator/validate/match.decorator";
 
 export class UserChangePasswordRequest {

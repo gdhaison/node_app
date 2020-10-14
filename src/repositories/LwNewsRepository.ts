@@ -29,10 +29,9 @@ export class LwNewsRepository extends Repository<LwNews> {
         const total = Number(count[0].counter);
         let to = 0;
         let nextPage = true;
-        if (total > page*limit) {
-            to = page*limit;
-        }
-        else {
+        if (total > page * limit) {
+            to = page * limit;
+        } else {
             to = total;
             nextPage = false;
         }
@@ -76,7 +75,7 @@ export class LwNewsRepository extends Repository<LwNews> {
             return this.createQueryBuilder()
                 .insert()
                 .into(LwNewsTrace,
-                    [ "partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
+                    ["partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
                 .values(
                     {
                         "partner": userId,

@@ -77,7 +77,7 @@ export class LwExerciseRepository extends Repository<LwExercise> {
         });
 
         let randomEx = [];
-        if (weightlossAreaIds && weightlossAreaIds.length > 0){
+        if (weightlossAreaIds && weightlossAreaIds.length > 0) {
             randomEx = await this.entityManager.query(`select le.id, le.image, le."name",
             false as is_finished, (select COUNT(1) from lw_video lv 
             INNER JOIN lw_exercise_video lev1 ON lev1.video_id = lv.id WHERE lev1.exercise_id = le.id) AS total_items 

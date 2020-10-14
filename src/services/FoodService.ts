@@ -32,7 +32,7 @@ export class LwFoodService extends BaseService<LwFood> {
     }
 
     public async changeFood(data: any, partnerId: number) {
-        const foodCategoryArr: { foodId: number; menuCode: string; partnerId: number ; dayOfWeek: string}[] = [];
+        const foodCategoryArr: { foodId: number; menuCode: string; partnerId: number; dayOfWeek: string }[] = [];
         const foodIds = data.food_add_ids;
         const foodDeleteIds = data.food_delete_ids;
         if (Array.isArray(foodIds) && foodIds.length)
@@ -75,13 +75,11 @@ export class LwFoodService extends BaseService<LwFood> {
         return this.lwFoodRepository.findFoodByDateCategory(date, menu, user_id, page, limit);
     }
 
-    public getOtherFood(category: string, page: number = 1, limit: number = 10, user_id: number): Promise<any>
-    {
+    public getOtherFood(category: string, page: number = 1, limit: number = 10, user_id: number): Promise<any> {
         return this.lwFoodRepository.findFoodByCategory(category, page, limit, user_id);
     }
 
-    public finishDiet(menuCode: string, dow: string, userId: number): Promise<any>
-    {
+    public finishDiet(menuCode: string, dow: string, userId: number): Promise<any> {
         return this.lwFoodRepository.finishDiet(menuCode, dow, userId);
     }
 

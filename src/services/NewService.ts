@@ -4,7 +4,6 @@ import {LwNews} from "../models/LwNews";
 import {OrmRepository} from "typeorm-typedi-extensions";
 import {LwNewsRepository} from "../repositories/LwNewsRepository";
 import {NewsErrors} from "../api/errors/NewsNotFoundError";
-import {LwNewsTrace} from "../models/LwNewsTrace";
 import {LwNewTraceRepository} from "../repositories/LwNewTraceRepository";
 
 @Service()
@@ -14,9 +13,9 @@ export class LwNewService extends BaseService<LwNews> {
         super(LwNews);
     }
 
-    public async getNewsDetail (newsId: number, userId: number) {
+    public async getNewsDetail(newsId: number, userId: number) {
         await this.view(newsId, userId);
-        const response =  await this.lwNewsRepository.getNewsDetail(newsId, userId);
+        const response = await this.lwNewsRepository.getNewsDetail(newsId, userId);
         if (response) {
             return response[0];
         } else {
@@ -24,7 +23,7 @@ export class LwNewService extends BaseService<LwNews> {
         }
     }
 
-    public getNews (page: number, limit: number, userId: number) {
+    public getNews(page: number, limit: number, userId: number) {
         return this.lwNewsRepository.getNews(page, limit, userId);
     }
 

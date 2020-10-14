@@ -1,13 +1,5 @@
 import {LwFoodService} from "../../services/FoodService";
-import {
-    Body,
-    CurrentUser,
-    Get,
-    JsonController,
-    Post,
-    QueryParam,
-    UploadedFile
-} from "routing-controllers";
+import {Body, CurrentUser, Get, JsonController, Post, QueryParam, UploadedFile} from "routing-controllers";
 import {FoodCreateRequest} from "../../models/dto/FoodCreateRequest";
 import {addPhoto} from "../../utils/S3Utils";
 import {S3Album} from "../../enums/S3Album";
@@ -40,7 +32,7 @@ export class LwFoodController {
         @QueryParam("page") page: number,
         @QueryParam("limit") limit: number,
         @CurrentUser({required: true}) user: ResPartner
-        ):
+    ):
         Promise<{ total: number; data: any; nextPage: boolean; limit: number; from: number; page: number; to: number }> {
         const user_id = user.id;
         return this._lwfoodService.search(search_text, category, page, limit, user_id);
@@ -52,8 +44,7 @@ export class LwFoodController {
         @QueryParam("page") page: number,
         @QueryParam("limit") limit: number,
         @CurrentUser({required: true}) user: ResPartner,
-    ): Promise<any>
-    {
+    ): Promise<any> {
         const user_id = user.id;
         return this._lwfoodService.getOtherFood(category, page, limit, user_id);
     }
@@ -86,7 +77,7 @@ export class LwFoodController {
     }
 
     @Post("/rating")
-    public async rating(@CurrentUser({required: true, }) user: ResPartner, @Body() body: RatingRequest,
+    public async rating(@CurrentUser({required: true,}) user: ResPartner, @Body() body: RatingRequest,
                         @Req() req: express.Request, @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
         return this._lwfoodService.rating(body, user.id);
@@ -94,7 +85,7 @@ export class LwFoodController {
 
     @Post("/change-food")
     public async changeFood(@CurrentUser({required: true}) user: ResPartner, @Body() data: any,
-                        @Req() req: express.Request, @Res() res: express.Response) {
+                            @Req() req: express.Request, @Res() res: express.Response) {
         res.status(StatusCodes.NO_CONTENT);
         data.partnerId = user.id;
         return this._lwfoodService.changeFood(data, user.id);
@@ -104,8 +95,7 @@ export class LwFoodController {
     public async finishDiet(
         @CurrentUser({required: true}) user: ResPartner,
         @Body() data: any
-    )
-    {
+    ) {
         const userId = user.id;
         return this._lwfoodService.finishDiet(data.menu_code, data.dow, userId);
     }
