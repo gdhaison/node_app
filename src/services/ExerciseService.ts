@@ -54,12 +54,12 @@ export class ExerciseService extends BaseService<LwExercise> {
         return this.lwExerciseRepository.finishExerciseVideo(exerciseId, videoId, userId);
     }
 
-    public async getByArea(area: string = "body", page: number = 1, limit: number = 10): Promise<any>{
-       const list_area = ["hand", "body", "stomach", "foot"];
-       if (list_area.includes(area)){
-           return this.lwExerciseRepository.getByArea(area, page, limit);
-       }
-       throw new AreaNotFoundError("404");
+    public async getByArea(area: string = "body", page: number = 1, limit: number = 10): Promise<any> {
+        const list_area = ["hand", "body", "stomach", "foot"];
+        if (list_area.includes(area)) {
+            return this.lwExerciseRepository.getByArea(area, page, limit);
+        }
+        throw new AreaNotFoundError("404");
     }
 
     public async putMuscle(userId: number, muscle: Array<string> = []): Promise<any> {

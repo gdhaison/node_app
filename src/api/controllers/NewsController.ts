@@ -1,4 +1,4 @@
-import {CurrentUser, Get, JsonController, Post, Param, QueryParam, Body, Req, Res} from "routing-controllers";
+import {Body, CurrentUser, Get, JsonController, Param, Post, QueryParam, Req, Res} from "routing-controllers";
 import {LwNewService} from "../../services/NewService";
 import {getRepository} from "typeorm";
 import {LwNews} from "../../models/LwNews";
@@ -12,7 +12,8 @@ export class NewsController {
     constructor(
         private _lwNewService: LwNewService,
         private repo = getRepository(LwNews)
-    ) {};
+    ) {
+    };
 
     @Get("/:news_id")
     public async getNewsDetail(@CurrentUser({required: true}) user: ResPartner,

@@ -28,6 +28,7 @@ import express from "express";
 import {addPhoto} from "../../utils/S3Utils";
 import {S3Album} from "../../enums/S3Album";
 import {UserChangePasswordRequest} from "../../models/dto/UserChangePasswordRequest";
+
 type File = Express.Multer.File;
 
 @JsonController("/users")
@@ -90,14 +91,8 @@ export class ResPartnerController {
                 weight: result.xLwWeight,
                 target_weight: result.xLwExpectedWeight,
                 physical: result.physical,
-                muscle: result.muscle,
             };
         });
-    }
-
-    @Delete("/:id")
-    remove(@Param("id") id: number, @QueryParam("search") search: string) {
-        throw new UserNotFoundError();
     }
 
     @Post("/login")
@@ -165,7 +160,6 @@ export class ResPartnerController {
                 weight: userLogin.xLwWeight,
                 target_weight: userLogin.xLwExpectedWeight,
                 physical: `${userLogin.physical}`,
-                muscle: `${userLogin.muscle}`,
             };
         }
         const userId = user.facebook_id;
@@ -207,13 +201,12 @@ export class ResPartnerController {
                 weight: userLogin.xLwWeight,
                 target_weight: userLogin.xLwExpectedWeight,
                 physical: `${userLogin.physical}`,
-                muscle: `${userLogin.muscle}`,
             };
         }
     }
 
     @Put("/change-password")
-    async changePassword(@CurrentUser({required: true}) user: ResPartner,@Res() res: express.Response, @Body() form: UserChangePasswordRequest) {
+    async changePassword(@CurrentUser({required: true}) user: ResPartner, @Res() res: express.Response, @Body() form: UserChangePasswordRequest) {
         res.status(StatusCodes.NO_CONTENT);
         return await this._resPartnerService.changePassword(form, user);
     }

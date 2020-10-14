@@ -31,7 +31,7 @@ export class ExerciseController {
         @QueryParam("page") page: number,
         @QueryParam("limit") limit: number,
         @CurrentUser({required: true}) user: ResPartner
-    ): Promise<any>{
+    ): Promise<any> {
         return this._exerciseService.getByArea(area, page, limit);
     }
 

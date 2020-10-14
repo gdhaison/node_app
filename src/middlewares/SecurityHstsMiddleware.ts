@@ -1,6 +1,3 @@
-import * as express from "express";
-import * as helmet from "helmet";
-import {ExpressMiddlewareInterface, Middleware} from "routing-controllers";
 //
 // @Middleware({type: "before"})
 // export class SecurityHstsMiddleware implements ExpressMiddlewareInterface {

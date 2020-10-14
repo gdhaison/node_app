@@ -1,5 +1,4 @@
-import {Column, Entity} from "typeorm";
-import {PrimaryColumn} from "typeorm";
+import {Column, Entity, PrimaryColumn} from "typeorm";
 
 @Entity({name: "lw_food_star"})
 export class LwFoodStar {

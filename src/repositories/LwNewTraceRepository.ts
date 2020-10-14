@@ -19,7 +19,7 @@ export class LwNewTraceRepository extends Repository<LwNewsTrace> {
             return this.createQueryBuilder()
                 .insert()
                 .into(LwNewsTrace,
-                    [ "partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
+                    ["partner_id", "news_id", "like_flg", "read_flg", "create_date", "write_date"])
                 .values(
                     {
                         "partner": userId,
