@@ -94,6 +94,9 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (userInfo.dob) {
             user.xLwDob = userInfo.dob;
         }
+        if (avatarLocation) {
+            user.avatar = avatarLocation;
+        }
         user.writeDate = new Date();
         return this._resPartnerRepository.save(user);
     }
