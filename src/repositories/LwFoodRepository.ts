@@ -6,7 +6,6 @@ import {LwFoodStar} from "../models/LwFoodStar";
 import {RatingRequest} from "../models/dto/RatingRequest";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
-import {LwFoodCategory} from "../models";
 import {PageNotFound} from "../api/errors/PageNotFound";
 import {LwFoodMenuPartner} from "../models/LwFoodMenuPartner";
 import logger from "../lib/logger/logger";
@@ -124,21 +123,17 @@ export class LwFoodRepository extends Repository<LwFood> {
             .where("lw_food_star.foodId = :food_id", {food_id: foodId})
             .andWhere("lw_food_star.resPartnerId = :partner_id", {partner_id: resPartnerId})
             .getOne();
+        const categoryCode = "food-like";
+        const foodCategory = await this.entityManager.query(
+            "select count(*) from lw_food_category lfc where lfc.food_id = $1 and lfc.partner_id = $2 AND lfc.category_code = $3",
+            [foodId, resPartnerId, categoryCode]);
 
-        const foodCategory = await this.createQueryBuilder()
-            .select("lw_food_category")
-            .from(LwFoodCategory, "lw_food_category")
-            .where("lw_food_category.foodId = :food_id", {food_id: foodId})
-            .andWhere("lw_food_category.partnerId = :partner_id", {partner_id: resPartnerId})
-            .andWhere("lw_food_category.category_code = 'food-like'")
-            .getOne();
-
-        if (!foodCategory) {
-            this.createQueryBuilder()
-                .insert()
-                .into(LwFoodCategory)
-                .values({foodId: foodId, categoryCode: "food-like", partnerId: resPartnerId})
-                .execute();
+        if (foodCategory[0].count <= 0) {
+            this.entityManager.query(
+                "insert into lw_food_category(food_id, category_code, partner_id) values($1, $2, $3)",
+                [foodId, categoryCode, resPartnerId]).then(r => {
+                logger.info(r);
+            });
         }
 
         if (result) {
