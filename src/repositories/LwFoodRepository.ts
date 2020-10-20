@@ -182,14 +182,14 @@ export class LwFoodRepository extends Repository<LwFood> {
     }
 
     async findFoodByDateCategory(
-        day_of_week: string,
+        date: string,
         menu: string,
         user_id: number,
         page: number,
         limit: number):
         Promise<any> {
 
-        const dow = DateUtils.dow(day_of_week);
+        const dow = DateUtils.dow(date);
         const is_exist = await this.entityManager.query(`select count(id) from lw_food_menu_partner lfmp where lfmp.menu_code = 
                                                        '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week= '${dow}'`);
         if (parseInt(is_exist[0]["count"]) == 0) {
@@ -200,7 +200,6 @@ export class LwFoodRepository extends Repository<LwFood> {
             for (const food_id in food_ids) {
                 await this.entityManager.query(`Insert into lw_food_menu_partner(food_id, menu_code, partner_id ,day_of_week) 
                                                          values(${parseInt(food_ids[food_id]["lw_food_id"])}, '${menu}', ${user_id}, '${dow}')`);
-
             }
         }
         const skippedItems = (page - 1) * limit;

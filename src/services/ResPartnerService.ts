@@ -91,6 +91,12 @@ export class ResPartnerService extends BaseService<ResPartner> {
         if (userInfo.weight) {
             user.xLwWeight = userInfo.weight;
         }
+        if (userInfo.dob) {
+            user.xLwDob = userInfo.dob;
+        }
+        if (avatarLocation) {
+            user.avatar = avatarLocation;
+        }
         user.writeDate = new Date();
         return this._resPartnerRepository.save(user);
     }
@@ -126,13 +132,13 @@ export class ResPartnerService extends BaseService<ResPartner> {
             payload.address = user.address;
         }
         if (user.height) {
-            payload.xLwWeight = user.height;
+            payload.xLwHeight = user.height;
         }
         if (user.weight) {
-            payload.xLwExpectedWeight = user.weight;
+            payload.xLwWeight = user.weight;
         }
         if (user.target_weight) {
-            payload.xLwWeight = user.target_weight;
+            payload.xLwExpectedWeight = user.target_weight;
         }
         if (user.physical) {
             payload.physical = user.physical;

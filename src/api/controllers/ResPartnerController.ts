@@ -48,7 +48,7 @@ export class ResPartnerController {
     async create(@Body() user: UserCreateRequest) {
         return this._resPartnerService.create(user).then(function (result) {
             const jwt = Authentication.generateToken(result.phone);
-            return snakeCase({
+            return {
                 id: result.id,
                 access_token: jwt,
                 full_name: result.name,
@@ -56,14 +56,14 @@ export class ResPartnerController {
                 phone: result.phone,
                 avatar: result.avatar,
                 address: result.address,
-                dob: result.dob,
-                gender: result.gender,
-                height: result.height,
-                weight: result.weight,
-                target_weight: result.targetWeight,
+                dob: result.xLwDob,
+                gender: result.xLwGender,
+                height: result.xLwHeight,
+                weight: result.xLwWeight,
+                target_weight: result.xLwExpectedWeight,
                 physical: result.physical,
                 muscle: user.muscle,
-            });
+            };
         });
     }
 
