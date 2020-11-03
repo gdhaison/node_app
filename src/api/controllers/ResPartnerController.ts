@@ -1,10 +1,8 @@
 import {
     Body,
     CurrentUser,
-    Delete,
     Get,
     JsonController,
-    Param,
     Post,
     Put,
     QueryParam,
@@ -15,12 +13,10 @@ import {
 } from "routing-controllers";
 import {ResPartnerService} from "../../services/ResPartnerService";
 import {ResPartner} from "../../models";
-import {UserNotFoundError} from "../errors/UserNotFoundError";
 import bodyParser from "body-parser";
 import argon2 from "argon2";
 import logger from "../../lib/logger/logger";
 import {Authentication} from "../../auth/Authenticate";
-import snakeCase from "snakecase-keys";
 import {UserCreateRequest} from "../../models/dto/UserCreateRequest";
 import {StatusCodes} from "http-status-codes";
 import {ErrorCode} from "../../enums/ErrorCode";
@@ -37,11 +33,6 @@ export class ResPartnerController {
     constructor(
         private _resPartnerService: ResPartnerService
     ) {
-    }
-
-    @Get()
-    getAll(@CurrentUser({required: true}) user: ResPartner) {
-        return this._resPartnerService.getAll();
     }
 
     @Post("/register")
