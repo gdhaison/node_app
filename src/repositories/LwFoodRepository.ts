@@ -6,10 +6,12 @@ import {LwFoodStar} from "../models/LwFoodStar";
 import {RatingRequest} from "../models/dto/RatingRequest";
 import {FoodNotFoundError} from "../api/errors/FoodNotFoundError";
 import {ErrorCode} from "../enums/ErrorCode";
+import {LwFoodCategory} from "../models";
 import {PageNotFound} from "../api/errors/PageNotFound";
 import {LwFoodMenuPartner} from "../models/LwFoodMenuPartner";
 import logger from "../lib/logger/logger";
 import {DateUtils} from "../utils/DateUtils";
+import {StatusCodes} from "http-status-codes";
 
 @Service()
 @EntityRepository(LwFood)
@@ -201,7 +203,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         const select_query =
             `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,(select lfs.star from lw_food_star
              lfs where lfs.res_partner_id = ${user_id} and lfs.food_id = lf.id) AS user_star,
-            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id}  AND lfs.like_flag = 1 
+            (SELECT COUNT(1) FROM lw_food_star lfs.like_flag = 1 
             AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs 
             where lfs.food_id = lf.id)::INTEGER AS star `;
 
@@ -213,6 +215,16 @@ export class LwFoodRepository extends Repository<LwFood> {
          where lfmp.menu_code = '${menu}' and lfmp.partner_id = ${user_id} and lfmp.day_of_week= '${dow}'`);
         const total = parseInt(count[0]["count"]);
         const total_page = Math.ceil(total / limit);
+
+        const count_food = await this.entityManager.query(`select count(lfmpt.id) from lw_food_menu_partner_today lfmpt
+         where lfmpt.lw_food_menu_partner_id in (select lfmp.id from lw_food_menu_partner lfmp where 
+         lfmpt.created_date::date = '${date}' and lfmp.day_of_week = '${dow}' and lfmp.menu_code = '${menu}' and 
+         lfmp.partner_id = ${user_id})`);
+        const diet_num = parseInt(count_food[0]["count"]);
+        let isFinish = false;
+        if (diet_num!=0) {
+            isFinish = true;
+        }
 
         let to = 0;
         let nextPage = true;
@@ -235,6 +247,7 @@ export class LwFoodRepository extends Repository<LwFood> {
             to,
             total,
             nextPage,
+            isFinish
         };
 
         return data;
@@ -288,17 +301,20 @@ export class LwFoodRepository extends Repository<LwFood> {
     }
 
     public async finishDiet(menuCode: string, dow: string, userId: number): Promise<any> {
-        const diet = await this.entityManager.query(`Select lfmp.id from lw_food_menu_partner lfmp 
+        const day_of_week = DateUtils.dow(dow);
+        const diets = await this.entityManager.query(`Select lfmp.id from lw_food_menu_partner lfmp 
                     inner join lw_menu lm on lm.code = lfmp.menu_code 
                     inner join lw_week lw on lw.day_of_week = lfmp.day_of_week 
                     where lw.day_of_week = $1 
                     and lm.code = $2 
-                    and lfmp.partner_id = $3`, [dow, menuCode, userId]);
+                    and lfmp.partner_id = $3`, [day_of_week, menuCode, userId]);
 
-        const diet_id = parseInt(diet[0]["id"]);
         const date = new Date().toISOString();
-        return await this.entityManager
-            .query(`Insert into lw_food_menu_partner_today (lw_food_menu_partner_id, status, created_date) 
-            values ('${diet_id}', ${true}, '${date}')`);
+        for (const diet in diets) {
+            await this.entityManager
+                .query(`Insert into lw_food_menu_partner_today (lw_food_menu_partner_id, status, created_date) 
+            values ('${parseInt(diets[diet]["id"])}', ${true}, '${date}')`);
+        }
+        return {"status": StatusCodes.OK};
     }
 }
