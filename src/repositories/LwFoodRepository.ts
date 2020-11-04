@@ -28,7 +28,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         const select_query =
             `SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description,
             (select lfs1.star as user_star from lw_food_star lfs1  where lfs1.res_partner_id = ${user_id} and lfs1.food_id = lf.id),
-            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = ${user_id} AND lfs.like_flag = 1 
+            (SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.like_flag = 1 
             AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs 
             WHERE lfs.food_id = lf.id)::INTEGER AS star `;
 
@@ -221,9 +221,9 @@ export class LwFoodRepository extends Repository<LwFood> {
          lfmpt.created_date::date = '${date}' and lfmp.day_of_week = '${dow}' and lfmp.menu_code = '${menu}' and 
          lfmp.partner_id = ${user_id})`);
         const diet_num = parseInt(count_food[0]["count"]);
-        let isFinish = false;
+        let is_finish = false;
         if (diet_num!=0) {
-            isFinish = true;
+            is_finish = true;
         }
 
         let to = 0;
@@ -247,7 +247,7 @@ export class LwFoodRepository extends Repository<LwFood> {
             to,
             total,
             nextPage,
-            isFinish
+            is_finish
         };
 
         return data;
@@ -258,7 +258,7 @@ export class LwFoodRepository extends Repository<LwFood> {
         const select_query =
             "SELECT DISTINCT lf.id, lf.image, lf.name, lf.calo,lf.description, " +
             "(select lfs1.star as user_star from lw_food_star lfs1  where lfs1.res_partner_id = " + user_id + " and lfs1.food_id = lf.id)," +
-            "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.res_partner_id = " + user_id + " AND lfs.like_flag = 1 " +
+            "(SELECT COUNT(1) FROM lw_food_star lfs WHERE lfs.like_flag = 1 " +
             "AND lfs.food_id = lf.id)::INTEGER AS heart,(SELECT round(AVG(lfs.star)) FROM lw_food_star lfs WHERE lfs.res_partner_id = " + user_id + " " +
             "AND lfs.food_id = lf.id)::INTEGER AS star ";
         const query =
