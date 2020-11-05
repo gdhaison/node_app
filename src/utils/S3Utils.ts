@@ -2,6 +2,7 @@ import AWS from "aws-sdk";
 import sharp from "sharp";
 import path from "path";
 import {getRandomString} from "./StringUtils";
+import logger from "../lib/logger/logger";
 
 const albumBucketName = process.env.AWS_BUCKET_NAME;
 
@@ -21,27 +22,31 @@ export function addPhoto(albumName: string, file: Express.Multer.File, options: 
     const fileEx = getExtension(fileName);
     const albumPhotosKey = encodeURIComponent(albumName) + "/";
     const photoKey = `${albumPhotosKey}${getRandomString(30)}.${fileEx}`;
-    const params = {
-        Bucket: albumBucketName,
-        Key: photoKey,
-        Body: file.buffer,
-        ContentType: `image/${fileEx}`,
-        ACL: "public-read-write"
-    };
+    try {
+        const params = {
+            Bucket: albumBucketName,
+            Key: photoKey,
+            Body: file.buffer,
+            ContentType: `image/${fileEx}`,
+            ACL: "public-read-write"
+        };
 
-    const width = options.width;
-    const height = options.height;
-    sharp(file.buffer)
-        .resize(width, height)
-        .toBuffer()
-        .then((buff: Buffer) => {
-            params.Body = buff;
-            s3.upload(params, (err: Error, data: any) => {
-                if (err) {
-                    throw err;
-                }
-                console.log(`File uploaded successfully. ${data.Location}`);
+        const width = options.width;
+        const height = options.height;
+        sharp(file.buffer)
+            .resize(width, height)
+            .toBuffer()
+            .then((buff: Buffer) => {
+                params.Body = buff;
+                s3.upload(params, (err: Error, data: any) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(`File uploaded successfully. ${data.Location}`);
+                });
             });
-        });
+    } catch (e) {
+        logger.error("error when upload S3!", e)
+    }
     return `${process.env.AWS_S3_BASE_URL}${photoKey}`;
 }
